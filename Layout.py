@@ -1,57 +1,58 @@
-import kivy
-
 from kivy.app import App
+from kivy.uix.floatlayout import FloatLayout
+from kivy.properties import ObjectProperty
+from kivy.uix.popup import Popup
 from kivy.uix.image import Image
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.lang import Builder
 
+import os
 
-## Find tutorial on what this does exactly
-# Retrieved from: https://stackoverflow.com/questions/43452697/browse-an-image-file-and-display-it-in-a-kivy-window
-Builder.load_string("""
-<My`Widget>:
-    id: Widget
-    FileChooserListView:
-        id: filechooser
-        on_selection: Widget.selected(filechooser.selection)
-    Image:
-        id: image
-        source: ""
-""")
+class LoadDialog(FloatLayout):
+    load = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
-### Below is trialing layouts, using boxlayout. Quite like it :D
+class SaveDialog(FloatLayout):
+    save = ObjectProperty(None)
+    text_input = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
-#    def build(self):
-#
-#
-#      windowLayout = BoxLayout(spacing=10)
-#      infoLayout = BoxLayout(spacing=10)
-#      imageCanvas = BoxLayout(spacing=10)
-#      btn_loading = Button(text="Load Image")
-#      btn_loading.bind(on_press = self.load_img)
-#
-#      test_img = Image(source="test_image.png")
-#      imageCanvas.add_widget(test_img)
-#
-#      infoLayout.add_widget(btn_loading)
-#      windowLayout.add_widget(imageCanvas)
-#      windowLayout.add_widget(infoLayout)
-#      return windowLayout
-#
-#    def load_img(self, event):
-#        print("Load Image")
+class Root(FloatLayout):
+    loadfile = ObjectProperty(None)
+    savefile = ObjectProperty(None)
+    image_input = ObjectProperty(None)
 
-class MyWidget(BoxLayout):
-    
-    def selected(self,filename):
-        self.ids.image.source = filename[0]
+    def dismiss_popup(self):
+        self._popup.dismiss()
 
-class ImgApp(App):
+    def show_load(self):
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Load file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def show_save(self):
+        content = SaveDialog(save=self.save, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Save file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def load(self, path, filename):
+        try:
+            self.ids.image_input.source=filename[0]
+        except:
+            print("Error")
+
+        self.dismiss_popup()
+
+    def save(self, path, filename):
+        #with open(os.path.join(path, filename), 'w') as stream:
+        #    stream.write(self.text_input.text)
+
+        self.dismiss_popup()
+
+class SpatialApp(App):
     def build(self):
-        return MyWidget()
-
-
+        self.load_kv('Spatial.kv')
+        return Root()
 
 if __name__ == '__main__':
-    ImgApp().run()
+    SpatialApp().run()
