@@ -4,17 +4,21 @@
     #Overall Window
     BoxLayout:
         orientation: 'vertical'
-        # Button Panel
+        # Top Button Panel
         BoxLayout:
             size_hint_y: None
+            size_hint_x: 0.35
             height: 30
-            padding: 0,0,550,0
+            #padding: 0,0,550,0
             Button:
                 text: 'Load'
                 on_release: root.show_load()
             Button:
                 text: 'Save'
                 on_release: root.show_save()
+            Button:
+                text: 'Test'
+                #on_release: root.fillGrid()
         # Image Viewer + Options Menu
         BoxLayout:
             Image:
@@ -23,6 +27,21 @@
             # Options Menu
             BoxLayout:
                 orientation:'vertical'
+                # User defined matrix
+                GridLayout:
+                    id: userMatrix
+                    cols: 3
+                    rows: 3
+                Slider:
+                    id: matrixSlider
+                    min: 2
+                    max: 7
+                    step: 1
+                    value: 2
+                    orientation: 'horizontal'
+                    on_touch_move: root.fillGrid(int(self.value))
+
+                    
 
 
 <LoadDialog>:

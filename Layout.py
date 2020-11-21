@@ -3,6 +3,8 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.uix.image import Image
+from kivy.uix.button import Button
+from kivy.uix.label import Label
 
 import os
 
@@ -12,7 +14,7 @@ class LoadDialog(FloatLayout):
 
 class SaveDialog(FloatLayout):
     save = ObjectProperty(None)
-    text_input = ObjectProperty(None)
+    text_input =    ObjectProperty(None)
     cancel = ObjectProperty(None)
 
 class Root(FloatLayout):
@@ -42,6 +44,15 @@ class Root(FloatLayout):
             print("Error")
 
         self.dismiss_popup()
+
+    def fillGrid(self, value):
+        # TO-DO: Make it remove the widgets & reset columns / rows before adding
+        self.ids.userMatrix.cols=value
+        self.ids.userMatrix.rows=value
+        for _ in range(value):
+            self.ids.userMatrix.add_widget(Label(text=str(value)))
+        
+        
 
     def save(self, path, filename):
         #with open(os.path.join(path, filename), 'w') as stream:
