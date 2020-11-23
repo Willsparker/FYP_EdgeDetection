@@ -5,6 +5,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
 
 import os
 
@@ -46,14 +47,13 @@ class Root(FloatLayout):
         self.dismiss_popup()
 
     def fillGrid(self, value):
-        # TO-DO: Make it remove the widgets & reset columns / rows before adding
+        # To DO: Make the grid look nicer
+        self.ids.userMatrix.clear_widgets()
         self.ids.userMatrix.cols=value
         self.ids.userMatrix.rows=value
-        for _ in range(value):
-            self.ids.userMatrix.add_widget(Label(text=str(value)))
+        for _ in range(value**2):
+            self.ids.userMatrix.add_widget(TextInput(text="0",multiline=False))
         
-        
-
     def save(self, path, filename):
         #with open(os.path.join(path, filename), 'w') as stream:
         #    stream.write(self.text_input.text)
