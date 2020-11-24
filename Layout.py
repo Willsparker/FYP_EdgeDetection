@@ -15,7 +15,7 @@ class LoadDialog(FloatLayout):
 
 class SaveDialog(FloatLayout):
     save = ObjectProperty(None)
-    text_input =    ObjectProperty(None)
+    text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
 class Root(FloatLayout):
@@ -40,14 +40,14 @@ class Root(FloatLayout):
 
     def load(self, path, filename):
         try:
-            self.ids.image_input.source=filename[0]
+            self.ids.image_input.source = filename[0]
         except:
             print("Error")
 
         self.dismiss_popup()
 
     def fillGrid(self, value):
-        # To DO: Make the grid look nicer
+        ## TODO: Make the grid look nicer
         self.ids.userMatrix.clear_widgets()
         self.ids.userMatrix.cols=value
         self.ids.userMatrix.rows=value
@@ -59,6 +59,13 @@ class Root(FloatLayout):
         #    stream.write(self.text_input.text)
 
         self.dismiss_popup()
+
+    # Genuinely surprised this worked ngl ^_^
+    def getKernel(self):
+        inputMatrix=[]
+        inputMatrix.append([i.text for i in self.ids.userMatrix.children])
+        print(inputMatrix)
+
 
 class SpatialApp(App):
     def build(self):

@@ -18,7 +18,7 @@
                 on_release: root.show_save()
             Button:
                 text: 'Test'
-                #on_release: root.fillGrid()
+                on_release: root.getKernel()
         # Image Viewer + Options Menu
         BoxLayout:
             Image:
@@ -32,6 +32,7 @@
                     id: userMatrix
                     cols: 3
                     rows: 3
+                    ## TODO: on startup, fillGrid
                 Slider:
                     id: matrixSlider
                     min: 2
