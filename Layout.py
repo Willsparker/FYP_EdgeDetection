@@ -6,6 +6,9 @@ from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivy.core.image import Image as CoreImage
+
+import kernel
 
 import os
 
@@ -60,12 +63,11 @@ class Root(FloatLayout):
 
         self.dismiss_popup()
 
-    # Genuinely surprised this worked ngl ^_^
     def getKernel(self):
         inputMatrix=[]
         inputMatrix.append([i.text for i in self.ids.userMatrix.children])
-        print(inputMatrix)
-
+        imageMan = kernel.Kernel(self.ids.image_input, inputMatrix)
+        imageMan.run()  
 
 class SpatialApp(App):
     def build(self):
