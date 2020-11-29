@@ -25,6 +25,7 @@ class Root(FloatLayout):
     loadfile = ObjectProperty(None)
     savefile = ObjectProperty(None)
     image_input = ObjectProperty(None)
+    count = 0
 
     def dismiss_popup(self):
         self._popup.dismiss()
@@ -67,13 +68,17 @@ class Root(FloatLayout):
         self.dismiss_popup()
 
     def getKernel(self):
+        self.count+=1
+        fileName="./test"+str(self.count)+".png"
+        print(fileName)
         inputMatrix=[]
         inputMatrix.append([i.text for i in self.ids.userMatrix.children])
         imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix)
-        print(self.ids.image_input.source)
         processIM = imageMan.run()
-        processIM.save('./test.png')
-        self.ids.image_input.texture=CoreImage('./test.png').texture
+        processIM.save(fileName)
+        #self.ids.image_input.texture=CoreImage(fileName).texture
+        self.ids.image_input.source=fileName
+
 
 class SpatialApp(App):
     def build(self):

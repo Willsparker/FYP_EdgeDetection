@@ -1,5 +1,6 @@
 from PIL import Image
 import numpy as np
+import cv2
 
 class Kernel:
     mask=[]
@@ -9,27 +10,28 @@ class Kernel:
 
     def run (self):
         # Get image width & height
-        height , width = self.inputImage.size
+        width, height = self.inputImage.size
+        self.printInfo(self.inputImage)
+        pixels = np.array(self.inputImage)
 
-        # If it's RGBA, we don't want Alpha
-        imageData=self.inputImage.getdata().convert('RGB')
-        
-        bw_list=[int((sum(x) / float(len(x)))) for x in imageData]
+        # Pixels[x][y], where x refers to the rowIndex, y refers to columnIndex
+        print(pixels.shape)
 
-        print("Height: ", height)
-        print("Width: ", width)
+        for rowIndex in range(height):
+            for columnIndex in range(width):
+                # Test function
+                pixels[rowIndex][columnIndex] = 1.25 * pixels[rowIndex][columnIndex]
 
-        recon_image=np.empty([width,height])
 
-        for x in range(width):
-            for y in range(height):
-                recon_image[x,y]=bw_list[width*x + y]
-                
+        returnImage = Image.fromarray(pixels)
 
-        print("DONE")
-        return Image.fromarray(recon_image.astype(np.uint8))
+        print("Return Image type: ", type(returnImage))
+        return returnImage
+
+    def printInfo(self,image):
+        print(image.format, image.size, image.mode)
 
 # Test code
 if __name__ == '__main__':
-    testKernel = Kernel("/home/will/Documents/FYP/FYP_EdgeDetection/small_image.png",[])
+    testKernel = Kernel("./small_image.png",[])
     test = testKernel.run()
