@@ -130,3 +130,6 @@ dmypy.json
 
 # .vscode Folder
 .vscode/
+
+# test_images
+test.png

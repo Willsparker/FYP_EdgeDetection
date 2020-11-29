@@ -9,7 +9,6 @@
             size_hint_y: None
             size_hint_x: 0.35
             height: 30
-            #padding: 0,0,550,0
             Button:
                 text: 'Load'
                 on_release: root.show_load()
@@ -24,15 +23,15 @@
             Image:
                 id: image_input
                 source: ''
+                allow_stretch: True
             # Options Menu
             BoxLayout:
                 orientation:'vertical'
                 # User defined matrix
                 GridLayout:
                     id: userMatrix
-                    cols: 3
-                    rows: 3
-                    ## TODO: on startup, fillGrid
+                    cols: 2
+                    rows: 2
                 Slider:
                     id: matrixSlider
                     min: 2

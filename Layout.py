@@ -31,18 +31,17 @@ class Root(FloatLayout):
 
     def show_load(self):
         content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
-        self._popup = Popup(title="Load file", content=content,
-                            size_hint=(0.9, 0.9))
+        self._popup = Popup(title="Load file", content=content,size_hint=(0.9, 0.9))
         self._popup.open()
 
     def show_save(self):
         content = SaveDialog(save=self.save, cancel=self.dismiss_popup)
-        self._popup = Popup(title="Save file", content=content,
-                            size_hint=(0.9, 0.9))
+        self._popup = Popup(title="Save file", content=content,size_hint=(0.9, 0.9))
         self._popup.open()
 
     def load(self, path, filename):
         try:
+            self.ids.image_input.texture =''
             self.ids.image_input.source = filename[0]
         except:
             print("Error")
@@ -50,8 +49,12 @@ class Root(FloatLayout):
         self.dismiss_popup()
 
     def fillGrid(self, value):
-        ## TODO: Make the grid look nicer
-        self.ids.userMatrix.clear_widgets()
+        ## TODO: Make the grid look nicer; Initialise with 2x2 grid
+        try:
+            self.ids.userMatrix.clear_widgets()
+        except AttributeError:
+            print("Grid has no children")
+
         self.ids.userMatrix.cols=value
         self.ids.userMatrix.rows=value
         for _ in range(value**2):
@@ -66,8 +69,11 @@ class Root(FloatLayout):
     def getKernel(self):
         inputMatrix=[]
         inputMatrix.append([i.text for i in self.ids.userMatrix.children])
-        imageMan = kernel.Kernel(self.ids.image_input, inputMatrix)
-        imageMan.run()  
+        imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix)
+        print(self.ids.image_input.source)
+        processIM = imageMan.run()
+        processIM.save('./test.png')
+        self.ids.image_input.texture=CoreImage('./test.png').texture
 
 class SpatialApp(App):
     def build(self):
