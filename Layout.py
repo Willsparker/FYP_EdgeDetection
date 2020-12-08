@@ -6,6 +6,7 @@ from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivy.uix.checkbox import CheckBox
 from kivy.core.image import Image as CoreImage
 
 import kernel
@@ -70,18 +71,22 @@ class Root(FloatLayout):
     def getKernel(self):
         self.count+=1
         fileName="./test"+str(self.count)+".png"
-        print(fileName)
-        inputMatrix=[]
-        inputMatrix.append([i.text for i in self.ids.userMatrix.children])
-        imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix)
-        processIM = imageMan.run()
-        processIM.save(fileName)
-        #self.ids.image_input.texture=CoreImage(fileName).texture
-        self.ids.image_input.source=fileName
+        inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
+        try:
+            imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix)
+            processIM = imageMan.run()
+            processIM.save(fileName)
+            #self.ids.image_input.texture=CoreImage(fileName).texture
+            self.ids.image_input.source=fileName
+        except AttributeError:
+            #TODO: Error message popup
+            print("Error")
+    
+        
 
 
 class SpatialApp(App):
-    def build(self):
+    def build(self):    
         self.load_kv('Spatial.kv')
         return Root()
 

@@ -25,22 +25,30 @@
                 source: ''
                 allow_stretch: True
             # Options Menu
+            #FloatLayout:
             BoxLayout:
                 orientation:'vertical'
+                #size_hint_x: 0.5
                 # User defined matrix
                 GridLayout:
                     id: userMatrix
-                    cols: 2
-                    rows: 2
+                    cols: 3
+                    rows: 3
+                    #pos_hint: {'x':.25}
+                    #size_hint: (.5,.5)
+                CheckBox:
+                    id: greyCheck
+                    active: False
+                    #pos_hint: {'x':.25, 'y':.5}
                 Slider:
                     id: matrixSlider
-                    min: 2
+                    min: 1
                     max: 7
-                    step: 1
-                    value: 2
+                    step: 2
+                    value: 3
                     orientation: 'horizontal'
                     on_touch_move: root.fillGrid(int(self.value))
-
+                    #pos_hint: {'x':.4, 'y':.3}
                     
 
 
