@@ -73,7 +73,7 @@ class Root(FloatLayout):
         fileName="./test"+str(self.count)+".png"
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
         try:
-            imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix)
+            imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix, 1)
             processIM = imageMan.run()
             processIM.save(fileName)
             #self.ids.image_input.texture=CoreImage(fileName).texture
