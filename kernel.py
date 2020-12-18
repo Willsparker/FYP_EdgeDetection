@@ -6,7 +6,7 @@ import cv2
 class Kernel:
     def __init__(self, image, matrix, padding):
         self.inputImage=Image.open(image)
-        # Reverse as Kivy has the list going from bottom right, up and left
+        # Reverse as the grid is read backwards
         self.mask=matrix
         self.mask.reverse()
         self.padding = padding
@@ -40,17 +40,19 @@ class Kernel:
 
         ### Iterate through image
 
-        #kernelOrigin = (int((maskSize-1)/2),int((maskSize-1)/2))
         offset = int((maskSize-1)/2)
         # Pixels[x][y], where x refers to the rowIndex, y refers to columnIndex
         for rowIndex in range(oriImgX-1):
             for columnIndex in range(oriImgY-1):
+                # In case there was ever any doubt- this is a horrid implementation
                 x = [item for item in (list(range(rowIndex-offset,rowIndex)) + list(range(rowIndex,rowIndex+offset+1))) if item >=0 if item < (oriImgX) ]
                 y = [item for item in (list(range(columnIndex-offset,columnIndex)) + list(range(columnIndex,columnIndex+offset+1))) if item >=0 if item < (oriImgY) ]
                 tmpArray = np.zeros((maskSize,maskSize))
                 newArray = oriImg[np.ix_(y,x)]
                 x_offset, y_offset = 0,0
                 
+                # If there's a 0 in the list, its on the boundary of the image 
+                # & this needs to be accounted for when making the np.ix_ array
                 if 0 in x:
                     x_offset = maskSize - newArray.shape[0]
                 if 0 in y:
@@ -70,6 +72,7 @@ class Kernel:
         returnImage = Image.merge("RGB", (Image.fromarray(r_channel), Image.fromarray(outImg.transpose()), Image.fromarray(b_channel)))
         return returnImage
 
+    # Debug code
     def printInfo(self,image):
         print(image.format, image.size, image.mode)
 

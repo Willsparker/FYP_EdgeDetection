@@ -25,30 +25,32 @@
                 source: ''
                 allow_stretch: True
             # Options Menu
-            #FloatLayout:
-            BoxLayout:
+            FloatLayout:
+            #BoxLayout:
                 orientation:'vertical'
-                #size_hint_x: 0.5
+                #size_hint_x:
                 # User defined matrix
+                pos_hint: {'x':.5}
                 GridLayout:
                     id: userMatrix
-                    cols: 3
-                    rows: 3
-                    #pos_hint: {'x':.25}
-                    #size_hint: (.5,.5)
+                    pos_hint: {'x':.25, 'y':0.5}
+                    size_hint: (.75,.5)
                 CheckBox:
                     id: greyCheck
                     active: False
-                    #pos_hint: {'x':.25, 'y':.5}
+                    pos_hint: {'x':.25, 'y':0.25}
+                    size_hint: (0.05,0.05)
                 Slider:
                     id: matrixSlider
                     min: 1
                     max: 7
                     step: 2
                     value: 3
+                    value_track: True
                     orientation: 'horizontal'
-                    on_touch_move: root.fillGrid(int(self.value))
-                    #pos_hint: {'x':.4, 'y':.3}
+                    on_value: root.fillGrid(int(self.value))
+                    pos_hint: {'x':0.15, 'y':0.15}
+                    size_hint: (0.75,0.1)
                     
 
 
@@ -80,7 +82,7 @@
         orientation: "vertical"
         FileChooserListView:
             id: filechooser
-            path: '.'
+            path: './images/'
             on_selection: text_input.text = self.selection and self.selection[0] or ''
 
         TextInput:

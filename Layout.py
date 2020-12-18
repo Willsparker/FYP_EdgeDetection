@@ -9,8 +9,9 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.checkbox import CheckBox
 from kivy.core.image import Image as CoreImage
 
-import kernel
+from io import BytesIO
 
+import kernel
 import os
 
 class LoadDialog(FloatLayout):
@@ -56,28 +57,35 @@ class Root(FloatLayout):
             self.ids.userMatrix.clear_widgets()
         except AttributeError:
             print("Grid has no children")
-
         self.ids.userMatrix.cols=value
         self.ids.userMatrix.rows=value
+
         for _ in range(value**2):
-            self.ids.userMatrix.add_widget(TextInput(text="0",multiline=False))
+            self.ids.userMatrix.add_widget(TextInput(text="0",multiline=False,font_size=30))
         
     def save(self, path, filename):
         #with open(os.path.join(path, filename), 'w') as stream:
         #    stream.write(self.text_input.text)
 
+        # processIM.save(fileName) was used before... however, I don't want to store the PIL Image object
+        # in memory ... 
+        # This may be the only way tho :/ 
+        #self.ids.image_input.save()
+
         self.dismiss_popup()
 
     def getKernel(self):
         self.count+=1
-        fileName="./test"+str(self.count)+".png"
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
         try:
+            # This is hacky af, but the only way I can get it working :/ 
+            # See: https://stackoverflow.com/a/52340135
             imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix, 1)
             processIM = imageMan.run()
-            processIM.save(fileName)
-            #self.ids.image_input.texture=CoreImage(fileName).texture
-            self.ids.image_input.source=fileName
+            data = BytesIO()
+            processIM.save(data, format='png')
+            data.seek(0)
+            self.ids.image_input.texture=CoreImage(BytesIO(data.read()), ext='png').texture
         except AttributeError:
             #TODO: Error message popup
             print("Error")
