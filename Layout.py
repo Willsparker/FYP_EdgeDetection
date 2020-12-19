@@ -27,7 +27,13 @@ class Root(FloatLayout):
     loadfile = ObjectProperty(None)
     savefile = ObjectProperty(None)
     image_input = ObjectProperty(None)
-    count = 0
+
+    def createPopup(self,content):
+        popUp = Popup(title='Test', 
+            content=Label(text=content),
+            size_hint=(None, None),         #by default this is (1,1)
+            size=(400,400))                 # TODO: Make this dynamic
+        popUp.open()
 
     def dismiss_popup(self):
         self._popup.dismiss()
@@ -44,11 +50,11 @@ class Root(FloatLayout):
 
     def load(self, path, filename):
         try:
-            self.ids.image_input.texture =''
+            self.ids.image_input.texture = ''
             self.ids.image_input.source = filename[0]
         except:
+            # Kivy handles this error, but I'd prefer my own popup
             print("Error")
-
         self.dismiss_popup()
 
     def fillGrid(self, value):
@@ -64,33 +70,31 @@ class Root(FloatLayout):
             self.ids.userMatrix.add_widget(TextInput(text="0",multiline=False,font_size=30))
         
     def save(self, path, filename):
-        #with open(os.path.join(path, filename), 'w') as stream:
-        #    stream.write(self.text_input.text)
-
-        # processIM.save(fileName) was used before... however, I don't want to store the PIL Image object
-        # in memory ... 
-        # This may be the only way tho :/ 
-        #self.ids.image_input.save()
-
+        # This currently doesn't handle images that haven't
+        # been modified
+        filename = path + "/" + filename
+        if not filename.endswith(".png"):
+            filename += ".png"
+        try:
+            self.image_input.save(filename)
+        except:
+            self.createPopup("Can't save a non altered image")
         self.dismiss_popup()
 
     def getKernel(self):
-        self.count+=1
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
         try:
             # This is hacky af, but the only way I can get it working :/ 
             # See: https://stackoverflow.com/a/52340135
             imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix, 1)
             processIM = imageMan.run()
+            self.image_input = processIM
             data = BytesIO()
             processIM.save(data, format='png')
             data.seek(0)
             self.ids.image_input.texture=CoreImage(BytesIO(data.read()), ext='png').texture
         except AttributeError:
-            #TODO: Error message popup
-            print("Error")
-    
-        
+            self.createPopup("Please load a base image in")
 
 
 class SpatialApp(App):
