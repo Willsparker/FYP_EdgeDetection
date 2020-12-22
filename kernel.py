@@ -6,12 +6,12 @@ import math
 import cv2
 
 class Kernel:
-    def __init__(self, image, matrix, padding):
+    def __init__(self, image, matrix, greyCheck):
         self.inputImage=Image.open(image)
         # Reverse as the grid is read backwards
         self.mask=matrix
         self.mask.reverse()
-        self.padding = padding
+        self.grey = greyCheck
 
     
     # Separate function to allow for multi-threading later
@@ -28,7 +28,7 @@ class Kernel:
         mask = np.flipud(np.fliplr(mask))  
 
         offset = int((maskSize-1)/2)
-        outImg = np.zeros((oriImgX, oriImgY),np.uint8)
+        outImg = np.zeros((oriImgX, oriImgY),np.uint16)
         for rowIndex in range(oriImgX-1):
             for columnIndex in range(oriImgY-1):
                 x = [item for item in (list(range(rowIndex-offset,rowIndex)) + list(range(rowIndex,rowIndex+offset+1))) if item >=0 if item < (oriImgX) ]
@@ -41,17 +41,11 @@ class Kernel:
                     x_offset = maskSize - newArray.shape[0]
                 if 0 in y:
                     y_offset = maskSize - newArray.shape[1]
-      
                 tmpArray[x_offset:newArray.shape[0]+x_offset,y_offset:newArray.shape[1]+y_offset] = newArray
-                value = int(sum(sum(tmpArray * mask)))
-                ## Theres a better way of doing this outside the loops with np.clip(a,0,255)
-                # But because outImg is a uint8 array, it wraps around anyway (look at changing them)
-                if value > 255:
-                    value = 255
-                elif value < 0:
-                    value = 0
                 outImg[rowIndex][columnIndex] = int(sum(sum(tmpArray * mask)))
-        return outImg
+        
+        outImg = np.clip(outImg,0,255)     
+        return outImg.astype(np.uint8)
 
 
     def run (self):
@@ -82,5 +76,5 @@ class Kernel:
 
 # Test code
 if __name__ == '__main__':
-    testKernel = Kernel("./images/other_small_image.png",[-1,-2,-1,0,8,0,1,2,1], 1)
+    testKernel = Kernel("./images/other_small_image.png",[0,0,0,0,2,0,0,0,0], True)
     test = testKernel.run()
