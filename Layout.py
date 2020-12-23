@@ -49,16 +49,24 @@ class Root(FloatLayout):
         self._popup.open()
 
     def load(self, path, filename):
+        ####
+        # Current issue: We display altered images as textures
+        # Original images are using `source`. 
+        # We can't apply several kernels as the 'getKernel' function uses
+        # kernel.Kernel(self.ids.image_input.source ...
+        # Need to get it to take in a texture, and alter this load function to only
+        # use textures
+        ####
         try:
-            self.ids.image_input.texture = ''
+            self.ids.image_input.texture = None
+            self.ids.image_input.source = ""
             self.ids.image_input.source = filename[0]
         except:
-            # Kivy handles this error, but I'd prefer my own popup
-            print("Error")
+            print("Error")   
         self.dismiss_popup()
 
     def fillGrid(self, value):
-        ## TODO: Make the grid look nicer; Initialise with 2x2 grid
+        ## TODO: Make the grid look nicer; Initialise with 3x3 grid
         try:
             self.ids.userMatrix.clear_widgets()
         except AttributeError:
@@ -86,15 +94,17 @@ class Root(FloatLayout):
         try:
             # This is hacky af, but the only way I can get it working :/ 
             # See: https://stackoverflow.com/a/52340135
-            imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix, 1)
+            imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix, self.ids.greyCheck.active)
             processIM = imageMan.run()
-            self.image_input = processIM
-            data = BytesIO()
-            processIM.save(data, format='png')
-            data.seek(0)
-            self.ids.image_input.texture=CoreImage(BytesIO(data.read()), ext='png').texture
         except AttributeError:
             self.createPopup("Please load a base image in")
+            return
+        self.image_input = processIM
+        data = BytesIO()
+        processIM.save(data, format='png')
+        data.seek(0)
+        self.ids.image_input.texture=CoreImage(BytesIO(data.read()), ext='png').texture
+
 
 
 class SpatialApp(App):
