@@ -6,7 +6,7 @@ import cv2
 
 class Kernel:
     def __init__(self, image, matrix, greyCheck):
-        self.inputImage=Image.open(image)
+        self.inputImage = Image.open(image)
         # Reverse as the grid is read backwards
         self.mask=matrix
         self.mask.reverse()
@@ -57,7 +57,7 @@ class Kernel:
             r_channel = np.array(r)
             g_channel = np.array(g)
             b_channel = np.array(b)
-            # Woot multithreading
+            # Not a great implementation of multithreading- can take awhile :/ 
             p = Pool(3)
             pro_rchannel, pro_gchannel, pro_bchannel = p.map(self.processChannel,[r_channel,g_channel,b_channel])
             returnImage = Image.merge("RGB", (Image.fromarray(pro_rchannel.transpose()), Image.fromarray(pro_gchannel.transpose()), Image.fromarray(pro_bchannel.transpose())))

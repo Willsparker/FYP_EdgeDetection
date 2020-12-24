@@ -9,6 +9,9 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.checkbox import CheckBox
 from kivy.core.image import Image as CoreImage
 
+from PIL import Image as pilImage
+
+
 from io import BytesIO
 
 import kernel
@@ -49,18 +52,12 @@ class Root(FloatLayout):
         self._popup.open()
 
     def load(self, path, filename):
-        ####
-        # Current issue: We display altered images as textures
-        # Original images are using `source`. 
-        # We can't apply several kernels as the 'getKernel' function uses
-        # kernel.Kernel(self.ids.image_input.source ...
-        # Need to get it to take in a texture, and alter this load function to only
-        # use textures
-        ####
+        inputImage = pilImage.open(filename[0])
+        data = BytesIO()
+        inputImage.save(data, format='png')
+        data.seek(0)
         try:
-            self.ids.image_input.texture = None
-            self.ids.image_input.source = ""
-            self.ids.image_input.source = filename[0]
+            self.ids.image_input.texture = CoreImage(BytesIO(data.read()), ext='png').texture
         except:
             print("Error")   
         self.dismiss_popup()
@@ -83,22 +80,25 @@ class Root(FloatLayout):
         filename = path + "/" + filename
         if not filename.endswith(".png"):
             filename += ".png"
-        try:
-            self.image_input.save(filename)
-        except:
-            self.createPopup("Can't save a non altered image")
+        #try:
+        self.image_input.save(filename)
+        #except:
+            #self.createPopup("Can't save a non altered image")
         self.dismiss_popup()
 
     def getKernel(self):
+        # TODO: Put try / except here for in case the inputs aren't numbers
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
+        # This saves the texture of the image as png, so we can make it into a PIL image in kernel.py
+        # Hacky, but could be useful later
+        self.ids.image_input.export_to_png(filename='./tmp/tmp.png')
         try:
-            # This is hacky af, but the only way I can get it working :/ 
-            # See: https://stackoverflow.com/a/52340135
-            imageMan = kernel.Kernel(self.ids.image_input.source, inputMatrix, self.ids.greyCheck.active)
+            imageMan = kernel.Kernel('./tmp/tmp.png', inputMatrix, self.ids.greyCheck.active)
             processIM = imageMan.run()
         except AttributeError:
             self.createPopup("Please load a base image in")
             return
+        # See: https://stackoverflow.com/a/52340135
         self.image_input = processIM
         data = BytesIO()
         processIM.save(data, format='png')

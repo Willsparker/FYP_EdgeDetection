@@ -133,3 +133,6 @@ dmypy.json
 
 # test_images
 /images
+
+# tmp_files
+/tmp
