@@ -17,7 +17,12 @@
                 on_release: root.show_save()
             Button:
                 text: 'Test'
-                on_release: root.getKernel()
+                on_release: root.applyTransform()
+            Button:
+                text: 'Undo'
+                on_release: root.undoTranform()
+            Button:
+
         # Image Viewer + Options Menu
         BoxLayout:
             Image:

@@ -14,7 +14,7 @@ from PIL import Image as pilImage
 
 from io import BytesIO
 
-import kernel
+import spatialFilter
 import os
 
 class LoadDialog(FloatLayout):
@@ -101,7 +101,7 @@ class Root(FloatLayout):
         frac = float(num) / float(denom)
         return whole - frac if whole < 0 else whole + frac
 
-    def getKernel(self):
+    def applyTransform(self):
         # TODO: Put try / except here for in case the inputs aren't numbers
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
         matrixCoefficient = self.getFraction(self.ids.matrixCoeff.text)
@@ -111,7 +111,7 @@ class Root(FloatLayout):
         # TODO: Make it so it fails if the picture isn't there!
         self.ids.image_input.export_to_png(filename='./tmp/tmp.png')
         try:
-            imageMan = kernel.Kernel('./tmp/tmp.png', inputMatrix, matrixCoefficient, self.ids.greyCheck.active)
+            imageMan = spatialFilter.spatialFilter('./tmp/tmp.png', inputMatrix, matrixCoefficient, self.ids.greyCheck.active)
             processIM = imageMan.run()
         except AttributeError:
             self.createPopup("Please load a base image in")
@@ -128,7 +128,7 @@ class Root(FloatLayout):
 
 class SpatialApp(App):
     def build(self):    
-        self.load_kv('Spatial.kv')
+        self.load_kv('main.kv')
         return Root()
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ import numpy as np
 import math
 import cv2
 
-class Kernel:
+class spatialFilter:
     def __init__(self, image, matrix, matCoeff, greyCheck):
         self.inputImage = Image.open(image)
         # Reverse as the grid is read backwards
@@ -13,7 +13,6 @@ class Kernel:
         self.mask.reverse()
         self.greyCheck = greyCheck
 
-    
     def processChannel(self, inputArray):
         # When multithreading, could use pool.starmap
         # See: https://stackoverflow.com/questions/5442910/how-to-use-multiprocessing-pool-map-with-multiple-arguments
