@@ -26,11 +26,15 @@
                 allow_stretch: True
             # Options Menu
             FloatLayout:
-            #BoxLayout:
                 orientation:'vertical'
-                #size_hint_x:
                 # User defined matrix
                 pos_hint: {'x':.5}
+                TextInput:
+                    id: matrixCoeff
+                    text: "1"
+                    font_size: 20
+                    pos_hint:{'x':.07, 'y':0.70}
+                    size_hint: (.15,.1)
                 GridLayout:
                     id: userMatrix
                     pos_hint: {'x':.25, 'y':0.5}

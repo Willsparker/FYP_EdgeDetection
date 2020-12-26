@@ -86,18 +86,37 @@ class Root(FloatLayout):
             #self.createPopup("Can't save a non altered image")
         self.dismiss_popup()
 
+    def getFraction(self,str):
+        # https://stackoverflow.com/a/30629776
+        # A pure python way of getting it from a string
+        try:
+            return float(str)
+        except ValueError:
+            num, denom = str.split('/')
+            try:
+                leading, num = num.split(' ')
+                whole = float(leading)
+            except ValueError:
+                whole = 0
+        frac = float(num) / float(denom)
+        return whole - frac if whole < 0 else whole + frac
+
     def getKernel(self):
         # TODO: Put try / except here for in case the inputs aren't numbers
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
+        matrixCoefficient = self.getFraction(self.ids.matrixCoeff.text)
         # This saves the texture of the image as png, so we can make it into a PIL image in kernel.py
         # Hacky, but could be useful later
+
+        # TODO: Make it so it fails if the picture isn't there!
         self.ids.image_input.export_to_png(filename='./tmp/tmp.png')
         try:
-            imageMan = kernel.Kernel('./tmp/tmp.png', inputMatrix, self.ids.greyCheck.active)
+            imageMan = kernel.Kernel('./tmp/tmp.png', inputMatrix, matrixCoefficient, self.ids.greyCheck.active)
             processIM = imageMan.run()
         except AttributeError:
             self.createPopup("Please load a base image in")
             return
+        
         # See: https://stackoverflow.com/a/52340135
         self.image_input = processIM
         data = BytesIO()

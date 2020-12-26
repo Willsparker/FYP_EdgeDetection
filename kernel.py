@@ -5,10 +5,11 @@ import math
 import cv2
 
 class Kernel:
-    def __init__(self, image, matrix, greyCheck):
+    def __init__(self, image, matrix, matCoeff, greyCheck):
         self.inputImage = Image.open(image)
         # Reverse as the grid is read backwards
-        self.mask=matrix
+        self.mask = matrix
+        self.matrixCo = matCoeff
         self.mask.reverse()
         self.greyCheck = greyCheck
 
@@ -22,10 +23,11 @@ class Kernel:
         maskSize=int(math.sqrt(len(self.mask)))
         mask = np.array(self.mask)
         mask = np.reshape(mask, (maskSize, maskSize))
-        mask = np.flipud(np.fliplr(mask))  
+        #mask = np.flipud(np.fliplr(mask))
+        mask = mask * self.matrixCo
 
         offset = int((maskSize-1)/2)
-        outImg = np.zeros((oriImgX, oriImgY),np.uint8)
+        outImg = np.zeros((oriImgX, oriImgY),dtype=float    )
         for rowIndex in range(oriImgX-1):
             for columnIndex in range(oriImgY-1):
                 x = [item for item in (list(range(rowIndex-offset,rowIndex)) + list(range(rowIndex,rowIndex+offset+1))) if item >=0 if item < (oriImgX) ]
@@ -80,5 +82,5 @@ class Kernel:
 
 # Test code
 if __name__ == '__main__':
-    testKernel = Kernel("./images/other_small_image.png",[0,0,0,0,2,0,0,0,0], False)
+    testKernel = Kernel("./images/other_small_image.png",[0,0,0,0,2,0,0,0,0], 0.5, True)
     test = testKernel.run()
