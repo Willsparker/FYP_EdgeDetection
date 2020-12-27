@@ -20,7 +20,7 @@
                 on_release: root.applyTransform()
             Button:
                 text: 'Undo'
-                on_release: root.undoTranform()
+                on_release: root.undoTransform()
             Button:
                 text: 'Preset Filters'
                 on_release: root.createPopup("TO DO: Put this in")
@@ -90,7 +90,7 @@
 
             Button:
                 text: "Load"
-                on_release: root.load(filechooser.path, filechooser.selection)
+                on_release: root.load(filechooser.selection)
 
 <SaveDialog>:
     text_input: text_input

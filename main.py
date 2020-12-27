@@ -51,16 +51,24 @@ class Root(FloatLayout):
         self._popup = Popup(title="Save file", content=content,size_hint=(0.9, 0.9))
         self._popup.open()
 
-    def load(self, path, filename):
-        inputImage = pilImage.open(filename[0])
+    def load(self, filename):
+        try:
+            inputImage = pilImage.open(filename[0])
+        except:
+            self.createPopup("Not a viable Image format")
+            return
+
         data = BytesIO()
         inputImage.save(data, format='png')
         data.seek(0)
+        self.ids.image_input.texture = CoreImage(BytesIO(data.read()), ext='png').texture
+
         try:
-            self.ids.image_input.texture = CoreImage(BytesIO(data.read()), ext='png').texture
-        except:
-            print("Error")   
-        self.dismiss_popup()
+            self.dismiss_popup()
+        except AttributeError:
+            print("Not in a popup")
+        finally:
+            del data
 
     def fillGrid(self, value):
         ## TODO: Make the grid look nicer; Initialise with 3x3 grid
@@ -80,10 +88,10 @@ class Root(FloatLayout):
         filename = path + "/" + filename
         if not filename.endswith(".png"):
             filename += ".png"
-        #try:
-        self.image_input.save(filename)
-        #except:
-            #self.createPopup("Can't save a non altered image")
+        try:
+            self.image_input.save(filename)
+        except:
+            self.createPopup("Can't save a non altered image")
         self.dismiss_popup()
 
     def getFraction(self,str):
@@ -105,10 +113,7 @@ class Root(FloatLayout):
         # TODO: Put try / except here for in case the inputs aren't numbers
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
         matrixCoefficient = self.getFraction(self.ids.matrixCoeff.text)
-        # This saves the texture of the image as png, so we can make it into a PIL image in kernel.py
-        # Hacky, but could be useful later
 
-        # TODO: Make it so it fails if the picture isn't there!
         self.ids.image_input.export_to_png(filename='./tmp/tmp.png')
         try:
             imageMan = spatialFilter.spatialFilter('./tmp/tmp.png', inputMatrix, matrixCoefficient, self.ids.greyCheck.active)
@@ -123,11 +128,19 @@ class Root(FloatLayout):
         processIM.save(data, format='png')
         data.seek(0)
         self.ids.image_input.texture=CoreImage(BytesIO(data.read()), ext='png').texture
+        del data
+
+    def undoTransform(self):
+        try:
+            self.load(['./tmp/tmp.png'])
+        except FileNotFoundError:
+            self.createPopup("No previously altered image")
+        
 
 
 
 class SpatialApp(App):
-    def build(self):    
+    def build(self):
         self.load_kv('main.kv')
         return Root()
 
