@@ -26,6 +26,10 @@
                 values: ["Sobel_X", "Sobel_Y", "Gaussian Blur 3x3", "Gaussian Blur 5x5", "Average Filter 3x3", "Average Filter 5x5"]
                 size_hint_x: 3
                 on_text: root.on_spinner_change(self.text)
+            Button:
+                text: "Blend"
+                on_release: root.blendImages()
+
 
                 
 

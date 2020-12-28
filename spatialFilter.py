@@ -2,7 +2,6 @@ from PIL import Image
 from multiprocessing import Pool
 import numpy as np
 import math
-import cv2
 
 class spatialFilter:
     def __init__(self, image, matrix, matCoeff, greyCheck):
