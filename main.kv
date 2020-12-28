@@ -1,5 +1,4 @@
 #:kivy 1.11.0
-
 <Root>:
     #Overall Window
     BoxLayout:
@@ -21,11 +20,15 @@
             Button:
                 text: 'Undo'
                 on_release: root.undoTransform()
-            Button:
+            Spinner:
+                id: presetSpinner
                 text: 'Preset Filters'
-                on_release: root.createPopup("TO DO: Put this in")
-                # Larger button needed for bigger text
-                size_hint_x: 2
+                values: ["Sobel_X", "Sobel_Y", "Gaussian Blur 3x3", "Gaussian Blur 5x5", "Average Filter 3x3", "Average Filter 5x5"]
+                size_hint_x: 3
+                on_text: root.on_spinner_change(self.text)
+
+                
+
 
         # Image Viewer + Options Menu
         BoxLayout:
@@ -66,7 +69,7 @@
                     value: 3
                     value_track: True
                     orientation: 'horizontal'
-                    on_value: root.fillGrid(int(self.value))
+                    on_value: root.initialiseGrid(int(self.value))
                     pos_hint: {'x':0.15, 'y':0.15}
                     size_hint: (0.75,0.1)
                     

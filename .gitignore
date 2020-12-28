@@ -134,5 +134,5 @@ dmypy.json
 # test_images
 /images
 
-# tmp_files
-/tmp
+# tmp_image. Unnecessary to store as this is generated in the app
+/files/tmp.png

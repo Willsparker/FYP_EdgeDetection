@@ -7,7 +7,6 @@ import cv2
 class spatialFilter:
     def __init__(self, image, matrix, matCoeff, greyCheck):
         self.inputImage = Image.open(image)
-        # Reverse as the grid is read backwards
         self.mask = matrix
         self.matrixCo = matCoeff
         self.mask.reverse()
@@ -26,7 +25,7 @@ class spatialFilter:
         mask = mask * self.matrixCo
 
         offset = int((maskSize-1)/2)
-        outImg = np.zeros((oriImgX, oriImgY),dtype=float    )
+        outImg = np.zeros((oriImgX, oriImgY),dtype=float)
         for rowIndex in range(oriImgX-1):
             for columnIndex in range(oriImgY-1):
                 x = [item for item in (list(range(rowIndex-offset,rowIndex)) + list(range(rowIndex,rowIndex+offset+1))) if item >=0 if item < (oriImgX) ]
@@ -58,7 +57,6 @@ class spatialFilter:
             r_channel = np.array(r)
             g_channel = np.array(g)
             b_channel = np.array(b)
-            # Not a great implementation of multithreading- can take awhile :/ 
             p = Pool(3)
             pro_rchannel, pro_gchannel, pro_bchannel = p.map(self.processChannel,[r_channel,g_channel,b_channel])
             returnImage = Image.merge("RGB", (Image.fromarray(pro_rchannel.transpose()), Image.fromarray(pro_gchannel.transpose()), Image.fromarray(pro_bchannel.transpose())))

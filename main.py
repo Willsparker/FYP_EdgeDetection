@@ -13,6 +13,7 @@ from PIL import Image as pilImage
 
 
 from io import BytesIO
+from math import sqrt
 
 import spatialFilter
 import os
@@ -70,17 +71,17 @@ class Root(FloatLayout):
         finally:
             del data
 
-    def fillGrid(self, value):
-        ## TODO: Make the grid look nicer; Initialise with 3x3 grid
-        try:
-            self.ids.userMatrix.clear_widgets()
-        except AttributeError:
-            print("Grid has no children")
-        self.ids.userMatrix.cols=value
-        self.ids.userMatrix.rows=value
+    def initialiseGrid(self, value):
+        self.ids.greyCheck.active = False
+        zerosList = [0] * value**2
+        self.fillGrid(zerosList)
 
-        for _ in range(value**2):
-            self.ids.userMatrix.add_widget(TextInput(text="0",multiline=False,font_size=30))
+    def fillGrid(self, valueList):
+        self.ids.userMatrix.clear_widgets()
+        self.ids.userMatrix.cols = int(sqrt(len(valueList)))
+        self.ids.userMatrix.rows = int(sqrt(len(valueList)))
+        for x in valueList:
+            self.ids.userMatrix.add_widget(TextInput(text=str(x),multiline=False,font_size=30))
         
     def save(self, path, filename):
         # This currently doesn't handle images that haven't
@@ -114,9 +115,9 @@ class Root(FloatLayout):
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
         matrixCoefficient = self.getFraction(self.ids.matrixCoeff.text)
 
-        self.ids.image_input.export_to_png(filename='./tmp/tmp.png')
+        self.ids.image_input.export_to_png(filename='./files/tmp.png')
         try:
-            imageMan = spatialFilter.spatialFilter('./tmp/tmp.png', inputMatrix, matrixCoefficient, self.ids.greyCheck.active)
+            imageMan = spatialFilter.spatialFilter('./files/tmp.png', inputMatrix, matrixCoefficient, self.ids.greyCheck.active)
             processIM = imageMan.run()
         except AttributeError:
             self.createPopup("Please load a base image in")
@@ -132,12 +133,34 @@ class Root(FloatLayout):
 
     def undoTransform(self):
         try:
-            self.load(['./tmp/tmp.png'])
+            self.load(['./files/tmp.png'])
         except FileNotFoundError:
             self.createPopup("No previously altered image")
+
+    def on_spinner_change(self, text):
+        text = text.lower().replace(" ", "")
+        try:
+            file = open("./files/presetMasks","r")
+        except FileNotFoundError:
+            self.createPopup("Cannot find the presetMasks file")
+            return
+
+        # Terrible:
+        found = False
+        with file:
+            for line in file:
+                if line.startswith(text):
+                    found = True
+                    break
         
+        if not found: 
+            self.createPopup("Could not find line in the preset Folders")
+            return
 
-
+        lineList = line.split(" ")
+        self.ids.matrixCoeff.text = str(lineList[1])
+        self.fillGrid(lineList[2].split(","))
+        self.ids.greyCheck.active = (lineList[3])  
 
 class SpatialApp(App):
     def build(self):
