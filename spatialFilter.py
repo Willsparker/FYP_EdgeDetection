@@ -5,11 +5,17 @@ import math
 
 class spatialFilter:
     def __init__(self, image, matrix, matCoeff, greyCheck):
-        self.inputImage = Image.open(image)
+        self.infoString = ""
+        self.inputImage = image
+        self.imagePath = image
         self.mask = matrix
         self.matrixCo = matCoeff
         self.mask.reverse()
         self.greyCheck = greyCheck
+       
+        self.infoString += "\nMask: " + str(matrix)
+        self.infoString += "\nMatrix Coefficient: " + str(matCoeff)
+        self.infoString += "\nGreyScale: " + str(greyCheck)
 
     def processChannel(self, inputArray):
         # When multithreading, could use pool.starmap
@@ -40,6 +46,7 @@ class spatialFilter:
 
                 tmpArray[x_offset:newArray.shape[0]+x_offset,y_offset:newArray.shape[1]+y_offset] = newArray
                 value = int(sum(sum(tmpArray * mask)))
+                # I really want to get this working.
                 if value > 255: 
                     value = 255
                 elif value < 0:
@@ -73,10 +80,11 @@ class spatialFilter:
         return returnImage
 
     # Debug code
-    def printInfo(self,image):
-        print(image.format, image.size, image.mode)
+    def getInfoString(self):
+        return self.infoString
 
 # Test code
 if __name__ == '__main__':
-    testKernel = Kernel("./images/other_small_image.png",[0,0,0,0,2,0,0,0,0], 0.5, True)
+    testKernel = spatialFilter("./images/other_small_image.png",[0,0,0,0,2,0,0,0,0], 0.5, True)
     test = testKernel.run()
+    testKernel.printInfo()

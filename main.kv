@@ -30,21 +30,26 @@
                 text: "Blend"
                 on_release: root.blendImages()
 
-
-                
-
-
         # Image Viewer + Options Menu
-        BoxLayout:
+        FloatLayout:
             Image:
                 id: image_input
                 source: ''
                 allow_stretch: True
+                pos_hint: {'x': 0, 'y': 0.25}
+                size_hint: (0.5,0.75)
+            Label:
+                id: lblInfo
+                text: ""
+                pos_hint: {'y': 0.0 , 'x': 0}
+                size_hint: (0.5,0.25)
+                font_size: 20
             # Options Menu
             FloatLayout:
                 orientation:'vertical'
                 # User defined matrix
                 pos_hint: {'x':.5}
+                size_hint: (0.5,1)
                 TextInput:
                     id: matrixCoeff
                     text: "1"
@@ -65,6 +70,7 @@
                     text: "Greyscale?"
                     pos_hint: {'x':.45, 'y':0.4}
                     size_hint: (0.05,0.05)
+                    font_size: 20
                 Slider:
                     id: matrixSlider
                     min: 1

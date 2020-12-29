@@ -1,3 +1,4 @@
+# Kivy Stuff
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import ObjectProperty
@@ -9,15 +10,15 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.checkbox import CheckBox
 from kivy.core.image import Image as CoreImage
 
+# Additional Library stuff
 from PIL import Image as pilImage
-
-
 from io import BytesIO
 from math import sqrt
-
-import spatialFilter
-import blendImage
 import os
+
+# Other .py files
+import spatialFilter as sf
+import blendImage as bi
 
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
@@ -59,18 +60,11 @@ class Root(FloatLayout):
         except:
             self.createPopup("Not a viable Image format")
             return
-
-        data = BytesIO()
-        inputImage.save(data, format='png')
-        data.seek(0)
-        self.ids.image_input.texture = CoreImage(BytesIO(data.read()), ext='png').texture
-
+        self.setDisplayImage(inputImage)
         try:
             self.dismiss_popup()
         except AttributeError:
             print("Not in a popup")
-        finally:
-            del data
 
     def initialiseGrid(self, value):
         self.ids.greyCheck.active = False
@@ -85,9 +79,6 @@ class Root(FloatLayout):
             self.ids.userMatrix.add_widget(TextInput(text=str(x),multiline=False,font_size=30))
         
     def save(self, path, filename):
-        # This currently doesn't handle images that haven't
-        # been modified
-        # TODO: Fix this
         filename = path + "/" + filename
         if not filename.endswith(".png"):
             filename += ".png"
@@ -115,24 +106,22 @@ class Root(FloatLayout):
     def applyTransform(self):
         # TODO: Put try / except here for in case the inputs aren't numbers
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
-        matrixCoefficient = self.getFraction(self.ids.matrixCoeff.text)
-
-        # TODO: STOP THIS IN CASE THERE'S NO IMAGE LOADED
-        self.ids.image_input.export_to_png(filename='./files/tmp.png')
         try:
-            imageMan = spatialFilter.spatialFilter('./files/tmp.png', inputMatrix, matrixCoefficient, self.ids.greyCheck.active)
+            matrixCoefficient = self.getFraction(self.ids.matrixCoeff.text)
+        except ValueError:
+            self.ids.matrixCoeff.text = "1"
+            matrixCoefficient = 1
+
+        self.image_input.save("./files/tmp.png")
+        try:
+            imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.greyCheck.active)
             processIM = imageMan.run()
+            self.ids.lblInfo.text = imageMan.getInfoString()
         except AttributeError:
             self.createPopup("Please load a base image in")
             return
         
-        # See: https://stackoverflow.com/a/52340135
-        self.image_input = processIM
-        data = BytesIO()
-        processIM.save(data, format='png')
-        data.seek(0)
-        self.ids.image_input.texture=CoreImage(BytesIO(data.read()), ext='png').texture
-        del data
+        self.setDisplayImage(processIM)
 
     def undoTransform(self):
         try:
@@ -157,23 +146,34 @@ class Root(FloatLayout):
                     break
         
         if not found: 
-            self.createPopup("Could not find line in the preset Folders")
+            self.createPopup("Could not find line in the presetMask file")
             return
 
         lineList = line.split(" ")
         self.ids.matrixCoeff.text = str(lineList[1])
         self.fillGrid(lineList[2].split(","))
-        self.ids.greyCheck.active = (lineList[3])  
-    
+
+        # I know this looks like r/badcode, but any string where a bool
+        # is needed will equate to true, which sucks
+        if lineList[3] == "True":
+            self.ids.greyCheck.active = True
+        else:
+            self.ids.greyCheck.active = False
+
     def blendImages(self):
-        output = blendImage.blendImage.blend(None,"./images/test_image.png", "./images/test_image2.png", 0.75)
+        output = bi.blendImage.blend(None,"./images/porsche_sobel_x.png", "./images/porsche_sobel_y.png", 0.5, self.ids.greyCheck.active)
+        self.setDisplayImage(output)
+
+    # Sets the Kivy image widget's texture
+    def setDisplayImage(self, image):
+        self.image_input = image
         data = BytesIO()
-        output.save(data, format='png')
+        image.save(data, format='png')
         data.seek(0)
         self.ids.image_input.texture=CoreImage(BytesIO(data.read()), ext='png').texture
+        del data
 
 ### TODO:
-# 1) Separate the functions needed to set the display image into separeate function with image as argument.
 # 2) We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call
 # from a different class / python file.
 # 3) Sliders to control alpha for the blend function
