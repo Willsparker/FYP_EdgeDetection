@@ -12,6 +12,7 @@ from kivy.core.image import Image as CoreImage
 
 # Additional Library stuff
 from PIL import Image as pilImage
+from PIL import UnidentifiedImageError
 from io import BytesIO
 from math import sqrt
 import os
@@ -33,7 +34,14 @@ class Root(FloatLayout):
     loadfile = ObjectProperty(None)
     savefile = ObjectProperty(None)
     image_input = ObjectProperty(None)
+    image_blend = ObjectProperty(None)
 
+    # This is to allow the grid to start at 3. Weird this is required tho
+    # See: https://www.pisciottablog.com/2020/03/30/troubleshooting-attributeerror-super-object-has-no-attribute-__getattr__/
+    def __init__(self, **kwargs):
+        super(Root,self).__init__(**kwargs)
+        self.initialiseGrid(3)
+    
     def createPopup(self,content):
         popUp = Popup(title='Test', 
             content=Label(text=content),
@@ -44,9 +52,14 @@ class Root(FloatLayout):
     def dismiss_popup(self):
         self._popup.dismiss()
 
-    def show_load(self):
-        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
-        self._popup = Popup(title="Load file", content=content,size_hint=(0.9, 0.9))
+    def show_load(self, mode):
+        if mode == 1:
+            content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+            self._popup = Popup(title="Load Image", content=content,size_hint=(0.9, 0.9))
+        elif mode == 2:
+            content = LoadDialog(load=self.loadBlend, cancel=self.dismiss_popup)
+            self._popup = Popup(title="Load Image", content=content,size_hint=(0.9, 0.9))
+        
         self._popup.open()
 
     def show_save(self):
@@ -57,14 +70,28 @@ class Root(FloatLayout):
     def load(self, filename):
         try:
             inputImage = pilImage.open(filename[0])
-        except:
+        except UnidentifiedImageError:
             self.createPopup("Not a viable Image format")
             return
+
         self.setDisplayImage(inputImage)
+
+        #This try/except allows me to reuse load function for the Undo function
         try:
             self.dismiss_popup()
         except AttributeError:
-            print("Not in a popup")
+            pass
+
+    def loadBlend(self, filename):
+        # This function is to get the image to blend with the shown image
+        try:
+            blend_image = pilImage.open(filename[0])
+        except UnidentifiedImageError:
+            self.createPopup("Not a viable Image format")
+            return
+        
+        self.dismiss_popup()
+        self.blendImages(blend_image)
 
     def initialiseGrid(self, value):
         self.ids.greyCheck.active = False
@@ -106,20 +133,22 @@ class Root(FloatLayout):
     def applyTransform(self):
         # TODO: Put try / except here for in case the inputs aren't numbers
         inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
+        
         try:
             matrixCoefficient = self.getFraction(self.ids.matrixCoeff.text)
         except ValueError:
             self.ids.matrixCoeff.text = "1"
             matrixCoefficient = 1
 
-        self.image_input.save("./files/tmp.png")
-        try:
-            imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.greyCheck.active)
-            processIM = imageMan.run()
-            self.ids.lblInfo.text = imageMan.getInfoString()
-        except AttributeError:
-            self.createPopup("Please load a base image in")
+        if self.image_input:
+            self.image_input.save("./files/tmp.png")
+        else:
+            self.createPopup("Please load in a base image")
             return
+
+        imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.greyCheck.active, self.ids.cbAlpha.active)
+        processIM = imageMan.run()
+        self.ids.lblInfo.text = imageMan.getInfoString()
         
         self.setDisplayImage(processIM)
 
@@ -160,8 +189,16 @@ class Root(FloatLayout):
         else:
             self.ids.greyCheck.active = False
 
-    def blendImages(self):
-        output = bi.blendImage.blend(None,"./images/porsche_sobel_x.png", "./images/porsche_sobel_y.png", 0.5, self.ids.greyCheck.active)
+    def blendImages(self, blend_image):
+        if not self.image_input:
+            self.createPopup("Nothing to blend the image with!")
+            return
+
+        self.image_input.save("./files/tmp.png")
+
+        alpha = self.ids.blendSlider.value / 100
+        print(alpha)
+        output = bi.blendImage.blend(None, self.image_input, blend_image, alpha, self.ids.greyCheck.active, self.ids.cbAlpha.active)
         self.setDisplayImage(output)
 
     # Sets the Kivy image widget's texture
@@ -176,7 +213,6 @@ class Root(FloatLayout):
 ### TODO:
 # 2) We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call
 # from a different class / python file.
-# 3) Sliders to control alpha for the blend function
 # 4) Tidy up stuff (i.e. move the 'test' button to the float diagram and rename; rename variables to follow a set ruleset)
 # 5) Go round and fix all the other 'TODO's. Lots of small things to clean up.
 

@@ -10,7 +10,7 @@
             height: 30
             Button:
                 text: 'Load'
-                on_release: root.show_load()
+                on_release: root.show_load(1)
             Button:
                 text: 'Save'
                 on_release: root.show_save()
@@ -28,7 +28,7 @@
                 on_text: root.on_spinner_change(self.text)
             Button:
                 text: "Blend"
-                on_release: root.blendImages()
+                on_release: root.show_load(2)
 
         # Image Viewer + Options Menu
         FloatLayout:
@@ -59,6 +59,8 @@
                 GridLayout:
                     id: userMatrix
                     pos_hint: {'x':.25, 'y':0.5}
+                    row: 3
+                    col: 3
                     size_hint: (.75,.5)
                 CheckBox:
                     id: greyCheck
@@ -71,6 +73,23 @@
                     pos_hint: {'x':.45, 'y':0.4}
                     size_hint: (0.05,0.05)
                     font_size: 20
+                CheckBox:
+                    id: cbAlpha
+                    active: True
+                    pos_hint: {'x':.10, 'y':0.3}
+                    size_hint: (0.05,0.05)
+                Label:
+                    id: lblAlpa
+                    text: "Remove black/whitespace?"
+                    pos_hint: {'x':.45, 'y':0.3}
+                    size_hint: (0.05,0.05)
+                    font_size: 20
+                Label:
+                    id: lblMatrixVal
+                    text: str(int(matrixSlider.value))
+                    pos_hint: {'x':0.15, 'y':0.20}
+                    size_hint: (0.75,0.1)
+                    font_size: 20
                 Slider:
                     id: matrixSlider
                     min: 1
@@ -82,6 +101,20 @@
                     on_value: root.initialiseGrid(int(self.value))
                     pos_hint: {'x':0.15, 'y':0.15}
                     size_hint: (0.75,0.1)
+                Label:
+                    id: lblBlendVal
+                    text: str(int(blendSlider.value))
+                    pos_hint: {'x':0.15, 'y':0.10}
+                    size_hint: (0.75,0.1)
+                    font_size: 20
+                Slider:
+                    id: blendSlider
+                    pos_hint: {'x':0.15, 'y':0.05}
+                    size_hint: (0.75,0.1)
+                    orientation: 'horizontal'
+                    min: 1
+                    max: 100
+                    value: 50                    
                     
 
 

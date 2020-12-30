@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 class spatialFilter:
-    def __init__(self, image, matrix, matCoeff, greyCheck):
+    def __init__(self, image, matrix, matCoeff, greyCheck, alphaCheck):
         self.infoString = ""
         self.inputImage = image
         self.imagePath = image
@@ -12,6 +12,7 @@ class spatialFilter:
         self.matrixCo = matCoeff
         self.mask.reverse()
         self.greyCheck = greyCheck
+        self.alphaCheck = alphaCheck
        
         self.infoString += "\nMask: " + str(matrix)
         self.infoString += "\nMatrix Coefficient: " + str(matCoeff)
@@ -59,16 +60,19 @@ class spatialFilter:
 
     def run (self):
         if not self.greyCheck:
-            r,g,b = self.inputImage.convert("RGB").split()
+            r,g,b,a = self.inputImage.convert("RGBA").split()
             r_channel = np.array(r)
             g_channel = np.array(g)
             b_channel = np.array(b)
+            alpha_channel = np.array(a)
             p = Pool(3)
             pro_rchannel, pro_gchannel, pro_bchannel = p.map(self.processChannel,[r_channel,g_channel,b_channel])
-            returnImage = Image.merge("RGB", (Image.fromarray(pro_rchannel.transpose()), Image.fromarray(pro_gchannel.transpose()), Image.fromarray(pro_bchannel.transpose())))
+            returnImage = Image.merge("RGBA", (Image.fromarray(pro_rchannel.transpose()), Image.fromarray(pro_gchannel.transpose()), Image.fromarray(pro_bchannel.transpose()), Image.fromarray(alpha_channel)))
         else:
-            greyImg = np.array(self.inputImage.convert('L'))
-            returnImage = Image.fromarray(self.processChannel(greyImg).transpose())
+            grey, a = self.inputImage.convert('LA').split()
+            grey_channel = np.array(grey)
+            alpha_channel = np.array(a)
+            returnImage = Image.merge("LA", (Image.fromarray(self.processChannel(grey_channel).transpose()), Image.fromarray(alpha_channel)))
 
         ### Find shape of new image (Work on Padding) - may be unnecessary now
     #    outImgX = oriImgX
@@ -76,15 +80,46 @@ class spatialFilter:
     #    if self.padding != 0:
     #        outImgX =+ self.padding * 2
     #        outImgY =+ self.padding * 2
-
+        if self.alphaCheck:
+            #returnImage = self.rmBlackSpace(returnImage)
+            pass
         return returnImage
 
     # Debug code
     def getInfoString(self):
         return self.infoString
 
+
+    # We need to sort this out still
+    def rmBlackSpace(self, iImage):
+        newData = []
+        data = iImage.getdata()
+        width, height = iImage.size
+        depth = 2
+        for item in data:
+            if self.greyCheck:
+                if item[0] == 0:
+                    newData.append(tuple((0,0)))
+                else:
+                    newData.append(item)
+            else:
+                if item[0] == 0 and item [1] == 0 and item[3] == 0:
+                    newData.append(tuple((0,0,0,0)))
+                else:
+                    newData.append(item)
+        print(newData)
+        rtnImage = np.array(newData, dtype=np.uint8)
+        print(rtnImage)
+        rtnImage.reshape(height, width, 2)
+
+        return Image.fromarray(rtnImage)
+
+        
+
+
 # Test code
 if __name__ == '__main__':
-    testKernel = spatialFilter("./images/other_small_image.png",[0,0,0,0,2,0,0,0,0], 0.5, True)
+    im = Image.open("./images/other_small_image.png")
+    testKernel = spatialFilter(im,[0,0,0,0,2,0,0,0,0], 0.5, True,True)
     test = testKernel.run()
-    testKernel.printInfo()
+    print(testKernel.getInfoString())
