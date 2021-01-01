@@ -23,7 +23,7 @@
             Spinner:
                 id: presetSpinner
                 text: 'Preset Filters'
-                values: ["Sobel_X", "Sobel_Y", "Gaussian Blur 3x3", "Gaussian Blur 5x5", "Average Filter 3x3", "Average Filter 5x5"]
+                values: ["Identity", "Sobel_X", "Sobel_Y", "Gaussian Blur 3x3", "Gaussian Blur 5x5", "Average Filter 3x3", "Average Filter 5x5"]
                 size_hint_x: 3
                 on_text: root.on_spinner_change(self.text)
             Button:
@@ -40,10 +40,10 @@
                 size_hint: (0.5,0.75)
             Label:
                 id: lblInfo
-                text: ""
+                text: "Information Area"
                 pos_hint: {'y': 0.0 , 'x': 0}
                 size_hint: (0.5,0.25)
-                font_size: 20
+                font_size: 25
             # Options Menu
             FloatLayout:
                 orientation:'vertical'
@@ -86,7 +86,7 @@
                     font_size: 20
                 Label:
                     id: lblMatrixVal
-                    text: str(int(matrixSlider.value))
+                    text: "Matrix size: " + str(int(matrixSlider.value))
                     pos_hint: {'x':0.15, 'y':0.20}
                     size_hint: (0.75,0.1)
                     font_size: 20
@@ -98,12 +98,12 @@
                     value: 3
                     value_track: True
                     orientation: 'horizontal'
-                    on_value: root.initialiseGrid(int(self.value))
+                    on_touch_move: root.initialiseGrid(int(self.value))
                     pos_hint: {'x':0.15, 'y':0.15}
                     size_hint: (0.75,0.1)
                 Label:
                     id: lblBlendVal
-                    text: str(int(blendSlider.value))
+                    text: "Blend levels: " + str(int(blendSlider.value))
                     pos_hint: {'x':0.15, 'y':0.10}
                     size_hint: (0.75,0.1)
                     font_size: 20

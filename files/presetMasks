@@ -1,5 +1,7 @@
 # Order: <name> <matrixCoefficient> <list of mask> <True / False for Greyscale Check>
 
+identity 1 1 False
+
 sobel_x 1 -1,0,1,-2,0,2,-1,0,1 True
 sobel_y 1 1,2,1,0,0,0,-1,-2,-1 True
 

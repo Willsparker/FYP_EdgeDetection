@@ -13,10 +13,11 @@ class spatialFilter:
         self.mask.reverse()
         self.greyCheck = greyCheck
         self.alphaCheck = alphaCheck
-       
+
         self.infoString += "\nMask: " + str(matrix)
         self.infoString += "\nMatrix Coefficient: " + str(matCoeff)
         self.infoString += "\nGreyScale: " + str(greyCheck)
+        self.infoString += "\nRm BlankSpace: " + str(alphaCheck)
 
     def processChannel(self, inputArray):
         # When multithreading, could use pool.starmap
@@ -27,7 +28,6 @@ class spatialFilter:
         maskSize=int(math.sqrt(len(self.mask)))
         mask = np.array(self.mask)
         mask = np.reshape(mask, (maskSize, maskSize))
-        #mask = np.flipud(np.fliplr(mask))
         mask = mask * self.matrixCo
 
         offset = int((maskSize-1)/2)
@@ -47,7 +47,7 @@ class spatialFilter:
 
                 tmpArray[x_offset:newArray.shape[0]+x_offset,y_offset:newArray.shape[1]+y_offset] = newArray
                 value = int(sum(sum(tmpArray * mask)))
-                # I really want to get this working.
+                # I really want to get np.clip working.
                 if value > 255: 
                     value = 255
                 elif value < 0:
@@ -81,38 +81,33 @@ class spatialFilter:
     #        outImgX =+ self.padding * 2
     #        outImgY =+ self.padding * 2
         if self.alphaCheck:
-            #returnImage = self.rmBlackSpace(returnImage)
-            pass
+            returnImage = self.rmBlankSpace(returnImage)
         return returnImage
 
     # Debug code
     def getInfoString(self):
         return self.infoString
 
+    def rmBlankSpace(self, img):
+        pixdata = img.load()
+        width, height = img.size
 
-    # We need to sort this out still
-    def rmBlackSpace(self, iImage):
-        newData = []
-        data = iImage.getdata()
-        width, height = iImage.size
-        depth = 2
-        for item in data:
-            if self.greyCheck:
-                if item[0] == 0:
-                    newData.append(tuple((0,0)))
-                else:
-                    newData.append(item)
-            else:
-                if item[0] == 0 and item [1] == 0 and item[3] == 0:
-                    newData.append(tuple((0,0,0,0)))
-                else:
-                    newData.append(item)
-        print(newData)
-        rtnImage = np.array(newData, dtype=np.uint8)
-        print(rtnImage)
-        rtnImage.reshape(height, width, 2)
+        for y in range(height):
+            for x in range(width):
+                # Remove BlackSpace
+                if all(v == 0 for v in pixdata[x,y][:-1]):
+                    if self.greyCheck:
+                        pixdata[x,y] = (0,0)
+                    else:
+                        pixdata[x,y] = (0,0,0,0)
+                # Remove WhiteSpace
+                if all(v == 255 for v in pixdata[x,y][:-1]):
+                    if self.greyCheck:
+                        pixdata[x,y] = (255,0)
+                    else:
+                        pixdata[x,y] = (255,255,255,0)
 
-        return Image.fromarray(rtnImage)
+        return img
 
         
 
@@ -120,6 +115,6 @@ class spatialFilter:
 # Test code
 if __name__ == '__main__':
     im = Image.open("./images/other_small_image.png")
-    testKernel = spatialFilter(im,[0,0,0,0,2,0,0,0,0], 0.5, True,True)
+    testKernel = spatialFilter(im,[0,0,0,0,2,0,0,0,0], 0.5, False,True)
     test = testKernel.run()
     print(testKernel.getInfoString())

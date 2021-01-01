@@ -102,6 +102,7 @@ class Root(FloatLayout):
         self.ids.userMatrix.clear_widgets()
         self.ids.userMatrix.cols = int(sqrt(len(valueList)))
         self.ids.userMatrix.rows = int(sqrt(len(valueList)))
+        self.ids.matrixSlider.value = int(sqrt(len(valueList)))
         for x in valueList:
             self.ids.userMatrix.add_widget(TextInput(text=str(x),multiline=False,font_size=30))
         
@@ -211,10 +212,11 @@ class Root(FloatLayout):
         del data
 
 ### TODO:
-# 2) We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call
+# * Make the Default window size larger
+# * We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call
 # from a different class / python file.
-# 4) Tidy up stuff (i.e. move the 'test' button to the float diagram and rename; rename variables to follow a set ruleset)
-# 5) Go round and fix all the other 'TODO's. Lots of small things to clean up.
+# * Tidy up stuff (i.e. move the 'test' button to the float diagram and rename; rename variables to follow a set ruleset)
+# * Go round and fix all the other 'TODO's. Lots of small things to clean up.
 
 class SpatialApp(App):
     def build(self):
