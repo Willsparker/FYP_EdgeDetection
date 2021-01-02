@@ -9,6 +9,7 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.checkbox import CheckBox
 from kivy.core.image import Image as CoreImage
+from kivy.core.window import Window
 
 # Additional Library stuff
 from PIL import Image as pilImage
@@ -20,6 +21,12 @@ import os
 # Other .py files
 import spatialFilter as sf
 import blendImage as bi
+
+# Application Window Options
+#Window.size = (1500, 1000)
+#Window.toggle_fullscreen()
+#Window.set_icon("")
+#Window.top = 20
 
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
@@ -94,17 +101,19 @@ class Root(FloatLayout):
         self.blendImages(blend_image)
 
     def initialiseGrid(self, value):
-        self.ids.greyCheck.active = False
+        self.ids.cbGrey.active = False
         zerosList = [0] * value**2
         self.fillGrid(zerosList)
 
     def fillGrid(self, valueList):
-        self.ids.userMatrix.clear_widgets()
-        self.ids.userMatrix.cols = int(sqrt(len(valueList)))
-        self.ids.userMatrix.rows = int(sqrt(len(valueList)))
-        self.ids.matrixSlider.value = int(sqrt(len(valueList)))
+        matrixSize = int(sqrt(len(valueList)))
+        self.ids.grdUsrMatrix.clear_widgets()
+        self.ids.grdUsrMatrix.cols = matrixSize
+        self.ids.grdUsrMatrix.rows = matrixSize
+        self.ids.sldrMatrixSize.value = matrixSize
+
         for x in valueList:
-            self.ids.userMatrix.add_widget(TextInput(text=str(x),multiline=False,font_size=30))
+            self.ids.grdUsrMatrix.add_widget(TextInput(text=str(x),multiline=False,font_size=30))
         
     def save(self, path, filename):
         filename = path + "/" + filename
@@ -133,12 +142,12 @@ class Root(FloatLayout):
 
     def applyTransform(self):
         # TODO: Put try / except here for in case the inputs aren't numbers
-        inputMatrix = [int(i.text) for i in self.ids.userMatrix.children]
+        inputMatrix = [int(i.text) for i in self.ids.grdUsrMatrix.children]
         
         try:
-            matrixCoefficient = self.getFraction(self.ids.matrixCoeff.text)
+            matrixCoefficient = self.getFraction(self.ids.txtMatrixCoeff.text)
         except ValueError:
-            self.ids.matrixCoeff.text = "1"
+            self.ids.txtMatrixCoeff.text = "1"
             matrixCoefficient = 1
 
         if self.image_input:
@@ -147,7 +156,7 @@ class Root(FloatLayout):
             self.createPopup("Please load in a base image")
             return
 
-        imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.greyCheck.active, self.ids.cbAlpha.active)
+        imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.cbGrey.active, self.ids.cbAlpha.active)
         processIM = imageMan.run()
         self.ids.lblInfo.text = imageMan.getInfoString()
         
@@ -180,15 +189,15 @@ class Root(FloatLayout):
             return
 
         lineList = line.split(" ")
-        self.ids.matrixCoeff.text = str(lineList[1])
+        self.ids.txtMatrixCoeff.text = str(lineList[1])
         self.fillGrid(lineList[2].split(","))
 
         # I know this looks like r/badcode, but any string where a bool
         # is needed will equate to true, which sucks
         if lineList[3] == "True":
-            self.ids.greyCheck.active = True
+            self.ids.cbGrey.active = True
         else:
-            self.ids.greyCheck.active = False
+            self.ids.cbGrey.active = False
 
     def blendImages(self, blend_image):
         if not self.image_input:
@@ -199,7 +208,7 @@ class Root(FloatLayout):
 
         alpha = self.ids.blendSlider.value / 100
         print(alpha)
-        output = bi.blendImage.blend(None, self.image_input, blend_image, alpha, self.ids.greyCheck.active, self.ids.cbAlpha.active)
+        output = bi.blendImage.blend(None, self.image_input, blend_image, alpha, self.ids.cbGrey.active, self.ids.cbAlpha.active)
         self.setDisplayImage(output)
 
     # Sets the Kivy image widget's texture
@@ -208,11 +217,10 @@ class Root(FloatLayout):
         data = BytesIO()
         image.save(data, format='png')
         data.seek(0)
-        self.ids.image_input.texture=CoreImage(BytesIO(data.read()), ext='png').texture
+        self.ids.imgInput.texture=CoreImage(BytesIO(data.read()), ext='png').texture
         del data
 
 ### TODO:
-# * Make the Default window size larger
 # * We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call
 # from a different class / python file.
 # * Tidy up stuff (i.e. move the 'test' button to the float diagram and rename; rename variables to follow a set ruleset)
@@ -220,7 +228,16 @@ class Root(FloatLayout):
 
 class SpatialApp(App):
     def build(self):
+        self.title = "Spatial Mask Applicator"
         self.load_kv('main.kv')
+        
+        # Resize & Centre Window
+        initialCenter = Window.center
+        Window.size = (1500, 1000)
+        variation_x = Window.center[0] - initialCenter[0]
+        variation_y = Window.center[1] - initialCenter[1]
+        Window.left -= variation_x
+        Window.top -= variation_y
         return Root()
 
 if __name__ == '__main__':
