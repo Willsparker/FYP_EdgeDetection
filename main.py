@@ -176,7 +176,6 @@ class Root(FloatLayout):
             self.createPopup("Cannot find the presetMasks file")
             return
 
-        # Terrible:
         found = False
         with file:
             for line in file:
@@ -192,8 +191,6 @@ class Root(FloatLayout):
         self.ids.txtMatrixCoeff.text = str(lineList[1])
         self.fillGrid(lineList[2].split(","))
 
-        # I know this looks like r/badcode, but any string where a bool
-        # is needed will equate to true, which sucks
         if lineList[3] == "True":
             self.ids.cbGrey.active = True
         else:
@@ -205,9 +202,8 @@ class Root(FloatLayout):
             return
 
         self.image_input.save("./files/tmp.png")
-
         alpha = self.ids.blendSlider.value / 100
-        print(alpha)
+        
         output = bi.blendImage.blend(None, self.image_input, blend_image, alpha, self.ids.cbGrey.active, self.ids.cbAlpha.active)
         self.setDisplayImage(output)
 
@@ -223,7 +219,6 @@ class Root(FloatLayout):
 ### TODO:
 # * We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call
 # from a different class / python file.
-# * Tidy up stuff (i.e. move the 'test' button to the float diagram and rename; rename variables to follow a set ruleset)
 # * Go round and fix all the other 'TODO's. Lots of small things to clean up.
 
 class SpatialApp(App):

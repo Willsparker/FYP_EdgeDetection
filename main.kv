@@ -18,6 +18,13 @@
 
 
 <Root>:
+    # Background of whole app
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
     #Overall Window
     BoxLayout:
         orientation: 'vertical'
@@ -70,6 +77,8 @@
                 size_hint: (0.5,1)
                 pos_hint: {'x':.5}
                 orientation:'vertical'
+
+                # User-Input Matrix Elements
                 TextInput:
                     id: txtMatrixCoeff
                     size_hint: (.15,.1)
@@ -82,8 +91,8 @@
                     pos_hint: {'x':.22, 'y':0.5}
                 Slider:
                     id: sldrMatrixSize
-                    size_hint: (0.1,0.35)
-                    pos_hint: {'x':0.90, 'y':0.50}
+                    size_hint: (0.1,0.40)
+                    pos_hint: {'x':0.86, 'y':0.50}
                     min: 1
                     max: 7
                     step: 2
@@ -92,31 +101,51 @@
                     value_track_color: [1,0,0,1]
                     orientation: 'vertical'
                     on_touch_move: root.initialiseGrid(int(self.value))
-                CheckBox:
-                    id: cbGrey
-                    size_hint: (0.05,0.05)
-                    pos_hint: {'x':.25, 'y':0.4}
-                    active: False
                 Label:
-                    text: "Greyscale:"
-                    size_hint: (0.05,0.05)
-                    pos_hint: {'x':.45, 'y':0.4}
+                    size_hint: (0.1,0.1)
+                    pos_hint: {'x':0.86, 'y':0.90}
+                    text: "Size: " + str(int(sldrMatrixSize.value))
+                    multiline: True
                     font_size: 20
-                CheckBox:
-                    id: cbAlpha
-                    size_hint: (0.05,0.05)
-                    pos_hint: {'x':.10, 'y':0.3}
-                    active: True
-                Label:
-                    size_hint: (0.05,0.05)
-                    pos_hint: {'x':.45, 'y':0.3}
-                    text: "Remove black/whitespace:"
-                    font_size: 20
-                Label:
-                    size_hint: (0.75,0.1)
-                    pos_hint: {'x':0.15, 'y':0.20}
-                    text: "Matrix size: " + str(int(sldrMatrixSize.value))
-                    font_size: 20
+                
+                # Grid of Image Bool Options
+                GridLayout:
+                    size_hint: (0.5,0.1)
+                    pos_hint: {'x':0.05, 'y':0.38}
+                    rows:2
+                    cols:2
+
+                    # Set background to dark grey
+                    canvas.before:
+                        Color:
+                            rgba: 0.75, 0.75, 0.75, 0.3
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    
+                    # TODO: Sort out the column offset
+                    Label:
+                        text: "Greyscale:"
+                        font_size: 20
+                    CheckBox:
+                        id: cbGrey 
+                        active: False
+                    Label:
+                        text: "Remove blankspace:"
+                        font_size: 20
+                    CheckBox:
+                        id: cbAlpha
+                        active: True
+
+                Button:
+                    size_hint: (0.23,0.05)
+                    pos_hint: {'x':0.70, 'y':0.41}
+                    text: 'Apply mask'
+                    font_size: 25
+                    background_color: (1, 1, 1, 0.5)
+                    on_release: root.applyTransform()
+
+
                 Label:
                     size_hint: (0.75,0.1)
                     pos_hint: {'x':0.15, 'y':0.10}
@@ -130,11 +159,7 @@
                     max: 100
                     value: 50
                     orientation: 'horizontal'
-                Button:
-                    size_hint: (0.15,0.07)
-                    pos_hint: {'x':0.0, 'y':0.10}
-                    text: 'Apply mask'
-                    on_release: root.applyTransform()
+                
 
 <LoadDialog>:
     BoxLayout:
