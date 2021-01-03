@@ -2,8 +2,11 @@
 
 identity 1 1 False
 
-sobel_x 1 -1,0,1,-2,0,2,-1,0,1 True
+sobel_x 1 1,0,-1,2,0,-2,1,0,-1 True
 sobel_y 1 1,2,1,0,0,0,-1,-2,-1 True
+
+prewitt_x 1 1,0,-1,1,0,-1,1,0,-1 True
+prewitt_y 1 1,1,1,0,0,0,-1,-1,-1 True
 
 gaussianblur3x3 1/16 1,2,1,2,4,2,1,2,1 False
 gaussianblur5x5 1/256 1,4,6,4,1,4,16,24,16,4,6,24,36,24,6,4,16,24,16,4,1,4,6,4,1 False

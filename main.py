@@ -221,9 +221,10 @@ class Root(FloatLayout):
 # * BlendImage.py - Need to put the better function into the file, and just ensure it works!
 # * Intensity bounds - for greyscale images, implement functions that allow for lower and upper
 # boundaries are cut out. 
+# * In the presetMasks, put in the Normalised values thing
 # * Shape detection ... :grimace
 
-
+# * Make the Spinner dynamically fill in the __init__ function
 # * We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call
 # from a different class / python file.
 # * Go round and fix all the other 'TODO's. Lots of small things to clean up.
