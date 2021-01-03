@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 class spatialFilter:
-    def __init__(self, image, matrix, matCoeff, greyCheck, alphaCheck):
+    def __init__(self, image, matrix, matCoeff, greyCheck, alphaCheck, normGreyCheck):
         self.infoString = ""
         self.inputImage = image
         self.imagePath = image
@@ -13,11 +13,13 @@ class spatialFilter:
         self.mask.reverse()
         self.greyCheck = greyCheck
         self.alphaCheck = alphaCheck
+        self.normGreys = normGreyCheck
 
         self.infoString += "\nMask: " + str(matrix)
         self.infoString += "\nMatrix Coefficient: " + str(matCoeff)
         self.infoString += "\nGreyScale: " + str(greyCheck)
         self.infoString += "\nRm BlankSpace: " + str(alphaCheck)
+        self.infoString += "\nNormalise Greys: " + str(normGreyCheck)
 
     def processChannel(self, inputArray):
         # When multithreading, could use pool.starmap
@@ -47,12 +49,17 @@ class spatialFilter:
 
                 tmpArray[x_offset:newArray.shape[0]+x_offset,y_offset:newArray.shape[1]+y_offset] = newArray
                 value = int(sum(sum(tmpArray * mask)))
+
                 # I really want to get np.clip working.
-                if value > 255: 
+                if value > 255 and not self.normGreys: 
                     value = 255
-                elif value < 0:
+                elif value < 0 and not self.normGreys:
                     value = 0
                 outImg[rowIndex][columnIndex] = value
+        
+        # This is where I realised Python can't pass by reference...
+        if self.normGreys:
+            outImg = self.normaliseImage(outImg)
         
         #outImg = np.clip(outImg,0,255)     
         return outImg.astype(np.uint8)
@@ -109,12 +116,19 @@ class spatialFilter:
 
         return img
 
-        
+    # We want all values to be within the range of 0-255
+    def normaliseImage(self, img):
+        vMin, vMax = np.min(img) , np.max(img)
+        width, height = img.shape
+        for x in range(width):
+            for y in range(height):
+                img[x,y] = ((img[x,y] - vMin)/(vMax - vMin)) * 255
+        return img
 
 
 # Test code
 if __name__ == '__main__':
-    im = Image.open("./images/other_small_image.png")
-    testKernel = spatialFilter(im,[0,0,0,0,2,0,0,0,0], 0.5, False,True)
+    im = Image.open("./images/No fake lens.bmp")
+    testKernel = spatialFilter(im,[1,0,-1,2,0,-2,1,0,-1], 0.5, True,True, True)
     test = testKernel.run()
     print(testKernel.getInfoString())

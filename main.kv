@@ -95,7 +95,7 @@
                     pos_hint: {'x':0.86, 'y':0.50}
                     min: 1
                     max: 7
-                    step: 2
+                    step: 1
                     value: 3
                     value_track: True
                     value_track_color: [1,0,0,1]
@@ -112,7 +112,7 @@
                 GridLayout:
                     size_hint: (0.5,0.1)
                     pos_hint: {'x':0.05, 'y':0.38}
-                    rows:2
+                    rows:3
                     cols:2
 
                     # Set background to dark grey
@@ -130,6 +130,12 @@
                     CheckBox:
                         id: cbGrey 
                         active: False
+                    Label:
+                        text: "Normalise grey vals:"
+                        font_size: 20
+                    CheckBox:
+                        id: cbGreyVals
+                        active: True
                     Label:
                         text: "Remove blankspace:"
                         font_size: 20

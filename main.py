@@ -156,7 +156,7 @@ class Root(FloatLayout):
             self.createPopup("Please load in a base image")
             return
 
-        imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.cbGrey.active, self.ids.cbAlpha.active)
+        imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.cbGrey.active, self.ids.cbAlpha.active, self.ids.cbGreyVals.active)
         processIM = imageMan.run()
         self.ids.lblInfo.text = imageMan.getInfoString()
         
@@ -190,8 +190,9 @@ class Root(FloatLayout):
         lineList = line.split(" ")
         self.ids.txtMatrixCoeff.text = str(lineList[1])
         self.fillGrid(lineList[2].split(","))
-
-        if lineList[3] == "True":
+                
+        # TODO: Strip out the whitespace.
+        if lineList[3] == "True\n":
             self.ids.cbGrey.active = True
         else:
             self.ids.cbGrey.active = False
@@ -217,6 +218,12 @@ class Root(FloatLayout):
         del data
 
 ### TODO:
+# * BlendImage.py - Need to put the better function into the file, and just ensure it works!
+# * Intensity bounds - for greyscale images, implement functions that allow for lower and upper
+# boundaries are cut out. 
+# * Shape detection ... :grimace
+
+
 # * We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call
 # from a different class / python file.
 # * Go round and fix all the other 'TODO's. Lots of small things to clean up.
