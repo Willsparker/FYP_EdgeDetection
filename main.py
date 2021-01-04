@@ -188,14 +188,21 @@ class Root(FloatLayout):
             return
 
         lineList = line.split(" ")
+        # Last line will always have a `\n` at the end
+        lineList[-1] = lineList[-1].replace("\n","")
+
         self.ids.txtMatrixCoeff.text = str(lineList[1])
         self.fillGrid(lineList[2].split(","))
-                
-        # TODO: Strip out the whitespace.
-        if lineList[3] == "True\n":
+
+        if lineList[3] == "True":
             self.ids.cbGrey.active = True
         else:
             self.ids.cbGrey.active = False
+        
+        if lineList[4] == "True":
+            self.ids.cbGreyVals.active = True
+        else:
+            self.ids.cbGreyVals.active = False
 
     def blendImages(self, blend_image):
         if not self.image_input:
@@ -221,7 +228,6 @@ class Root(FloatLayout):
 # * BlendImage.py - Need to put the better function into the file, and just ensure it works!
 # * Intensity bounds - for greyscale images, implement functions that allow for lower and upper
 # boundaries are cut out. 
-# * In the presetMasks, put in the Normalised values thing
 # * Shape detection ... :grimace
 
 # * Make the Spinner dynamically fill in the __init__ function

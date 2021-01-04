@@ -11,9 +11,8 @@ class blendImage:
             im1 = im1.convert('RGBA')
             im2 = im2.convert('RGBA')
         
-        # See: https://stackoverflow.com/questions/765736/how-to-use-pil-to-make-all-white-pixels-transparent
-        # Just testing tbh
         newData = []
+        newData2 = []
         data1 = im1.getdata()
         data2 = im2.getdata()
         if alphaCheck:
@@ -30,6 +29,21 @@ class blendImage:
                         newData.append((255,255,255,0))
                     else:
                         newData.append(item)
+        
+        if alphaCheck:
+            for item in data2:
+                # LA
+                if len(item) == 2:
+                    if item[0] == 0 or item[0] == 255:
+                        newData2.append((255,0))
+                    else:
+                        newData2.append(item)
+                # RGBA
+                elif len(item) == 4:
+                    if item[0] == 0 and item[1] == 0 and item[2] == 0:
+                        newData2.append((255,255,255,0))
+                    else:
+                        newData2.append(item)
 
         if im2.size != im1.size:
             im2 = im2.resize(im1.size)
