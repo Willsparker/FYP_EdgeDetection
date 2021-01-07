@@ -156,9 +156,13 @@ class Root(FloatLayout):
             self.createPopup("Please load in a base image")
             return
 
-        imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.cbGrey.active, self.ids.cbAlpha.active, self.ids.cbGreyVals.active)
+        imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.cbGrey.active, self.ids.cbAlpha.active, self.ids.cbGreyVals.active, self.ids.cbSveGrad.active)
         processIM = imageMan.run()
-        self.ids.lblInfo.text = imageMan.getInfoString()
+        self.setInfoString(imageMan.getInfoString(),1)
+
+        if self.ids.cbSveGrad.active:
+            self.savedGrad = imageMan.getPixelGradients()
+            self.setInfoString("Saved Gradient",3)
         
         self.setDisplayImage(processIM)
 
@@ -224,11 +228,46 @@ class Root(FloatLayout):
         self.ids.imgInput.texture=CoreImage(BytesIO(data.read()), ext='png').texture
         del data
 
+    # Prints warning if the options are silly
+    def checkOptions(self):
+        infoString = ""
+        level = 1
+        if not self.ids.cbGrey.active:
+            if self.ids.cbSveGrad.active:
+                infoString += "* Can't save non greyscale image gradients\n"
+                level = 2
+            if self.ids.cbAlpha.active:
+                infoString += "* Removing blackspace from RGB may not work as expected"
+                level = 2
+        else:
+            pass
+        
+        if infoString == "":
+            infoString = "Information Area"
+        
+        self.setInfoString(infoString,level)
+        
+
+    # Sets Info string, level determines text colour
+    def setInfoString(self, infoString, level):
+        level_colours = {
+            # 1 is White
+            1: [1,1,1,1],
+            # 2 is Red
+            2: [1,0,0,1],
+            # 3 is Green
+            3: [1,1,0,1]
+        }
+        self.ids.lblInfo.color = level_colours.get(level, lambda: [1,1,1,1])
+        self.ids.lblInfo.text = infoString
+
 ### TODO:
 # * BlendImage.py - Need to put the better function into the file, and just ensure it works!
 # * Intensity bounds - for greyscale images, implement functions that allow for lower and upper
 # boundaries are cut out. 
 # * Shape detection ... :grimace
+# * AS per: https://stackoverflow.com/a/52916385 ; If checkbox, store non normalised pixel values; 
+# Then if there's another run, take them and find the Gradient. 
 
 # * Make the Spinner dynamically fill in the __init__ function
 # * We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call

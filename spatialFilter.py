@@ -4,7 +4,9 @@ import numpy as np
 import math
 
 class spatialFilter:
-    def __init__(self, image, matrix, matCoeff, greyCheck, alphaCheck, normGreyCheck):
+    pixelGradients = None
+
+    def __init__(self, image, matrix, matCoeff, greyCheck, alphaCheck, normGreyCheck, pixelGradCheck):
         self.infoString = ""
         self.inputImage = image
         self.imagePath = image
@@ -14,6 +16,7 @@ class spatialFilter:
         self.greyCheck = greyCheck
         self.alphaCheck = alphaCheck
         self.normGreys = normGreyCheck
+        self.pixelGradCheck = pixelGradCheck
 
         self.infoString += "\nMask: " + str(matrix)
         self.infoString += "\nMatrix Coefficient: " + str(matCoeff)
@@ -28,10 +31,8 @@ class spatialFilter:
         oriImgX, oriImgY = self.inputImage.size
         oriImg = inputArray
         maskSize=int(math.sqrt(len(self.mask)))
-        mask = np.array(self.mask)
-        mask = np.reshape(mask, (maskSize, maskSize))
-        mask = mask * self.matrixCo
-
+        mask = self.matrixCo * np.array(self.mask).reshape(maskSize,maskSize)
+    
         offset = int((maskSize-1)/2)
         outImg = np.zeros((oriImgX, oriImgY),dtype=float)
         for rowIndex in range(oriImgX-1):
@@ -48,22 +49,25 @@ class spatialFilter:
                     y_offset = maskSize - newArray.shape[1]
 
                 tmpArray[x_offset:newArray.shape[0]+x_offset,y_offset:newArray.shape[1]+y_offset] = newArray
-                value = int(sum(sum(tmpArray * mask)))
-
-                # I really want to get np.clip working.
-                if value > 255 and not self.normGreys: 
-                    value = 255
-                elif value < 0 and not self.normGreys:
-                    value = 0
-                outImg[rowIndex][columnIndex] = value
+                outImg[rowIndex][columnIndex] = int(sum(sum(tmpArray * mask)))
         
-        # This is where I realised Python can't pass by reference...
-        if self.normGreys:
-            outImg = self.normaliseImage(outImg)
-        
-        #outImg = np.clip(outImg,0,255)     
-        return outImg.astype(np.uint8)
+        # Returning outImg as a float, as not to overflow.
+        # Overflowed values are sorted later 
+        return outImg
+    
+        # When we want all values to be within the range of 0-255
+    def normaliseImageValues(self, img):
+        vMin, vMax = np.min(img) , np.max(img)
+        width, height = img.shape
+        for x in range(width):
+            for y in range(height):
+                img[x,y] = ((img[x,y] - vMin)/(vMax - vMin)) * 255
+        return img.astype(np.uint8)
 
+    # When we want to just round values to 0-255 (i.e. -VEs become 0, 256+ become 255)
+    def cutOffImageValues(self, img):
+        np.clip(img,0,255,out=img)
+        return img.astype(np.uint8)
 
     def run (self):
         if not self.greyCheck:
@@ -77,25 +81,33 @@ class spatialFilter:
             returnImage = Image.merge("RGBA", (Image.fromarray(pro_rchannel.transpose()), Image.fromarray(pro_gchannel.transpose()), Image.fromarray(pro_bchannel.transpose()), Image.fromarray(alpha_channel)))
         else:
             grey, a = self.inputImage.convert('LA').split()
-            grey_channel = np.array(grey)
-            alpha_channel = np.array(a)
-            returnImage = Image.merge("LA", (Image.fromarray(self.processChannel(grey_channel).transpose()), Image.fromarray(alpha_channel)))
+            
+            grey_channel = self.processChannel(np.array(grey)).transpose()
+            
+            # Can only be done on GreyScale images
+            # cus I cba to do it for colours
+            if self.pixelGradCheck:
+                self.pixelGradients = grey_channel
 
-        ### Find shape of new image (Work on Padding) - may be unnecessary now
-    #    outImgX = oriImgX
-    #    outImgY = oriImgY
-    #    if self.padding != 0:
-    #        outImgX =+ self.padding * 2
-    #        outImgY =+ self.padding * 2
+            if self.normGreys:
+                grey_channel = self.normaliseImageValues(grey_channel)
+            else:
+                grey_channel = self.cutOffImageValues(grey_channel)
+            
+            alpha_channel = np.array(a)
+
+            returnImage = Image.merge("LA", (Image.fromarray(grey_channel), Image.fromarray(alpha_channel)))
+
         if self.alphaCheck:
-            returnImage = self.rmBlankSpace(returnImage)
+            returnImage = self.rmBlackSpace(returnImage)
+
         return returnImage
 
     # Debug code
     def getInfoString(self):
         return self.infoString
 
-    def rmBlankSpace(self, img):
+    def rmBlackSpace(self, img):
         pixdata = img.load()
         width, height = img.size
 
@@ -107,28 +119,17 @@ class spatialFilter:
                         pixdata[x,y] = (0,0)
                     else:
                         pixdata[x,y] = (0,0,0,0)
-                # Remove WhiteSpace
-                if all(v == 255 for v in pixdata[x,y][:-1]):
-                    if self.greyCheck:
-                        pixdata[x,y] = (255,0)
-                    else:
-                        pixdata[x,y] = (255,255,255,0)
-
         return img
 
-    # We want all values to be within the range of 0-255
-    def normaliseImage(self, img):
-        vMin, vMax = np.min(img) , np.max(img)
-        width, height = img.shape
-        for x in range(width):
-            for y in range(height):
-                img[x,y] = ((img[x,y] - vMin)/(vMax - vMin)) * 255
-        return img
+    def getPixelGradients(self):
+        return self.pixelGradients
+
 
 
 # Test code
 if __name__ == '__main__':
     im = Image.open("./images/No fake lens.bmp")
-    testKernel = spatialFilter(im,[1,0,-1,2,0,-2,1,0,-1], 0.5, True,True, True)
+    testKernel = spatialFilter(im,[1,0,-1,2,0,-2,1,0,-1], 0.5, True,True, False, True)
     test = testKernel.run()
     print(testKernel.getInfoString())
+    print(testKernel.getPixelGradients())

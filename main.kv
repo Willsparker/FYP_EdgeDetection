@@ -112,7 +112,7 @@
                 GridLayout:
                     size_hint: (0.5,0.1)
                     pos_hint: {'x':0.05, 'y':0.38}
-                    rows:3
+                    rows:4
                     cols:2
 
                     # Set background to dark grey
@@ -130,18 +130,28 @@
                     CheckBox:
                         id: cbGrey 
                         active: False
+                        on_release: root.checkOptions()
                     Label:
                         text: "Normalise grey vals:"
                         font_size: 20
                     CheckBox:
                         id: cbGreyVals
                         active: True
+                        on_release: root.checkOptions()
                     Label:
-                        text: "Remove blankspace:"
+                        text: "Remove blackspace:"
                         font_size: 20
                     CheckBox:
                         id: cbAlpha
                         active: True
+                        on_release: root.checkOptions()
+                    Label:
+                        text: "Save img gradient"
+                        font_size: 20
+                    CheckBox:
+                        id: cbSveGrad
+                        active: False
+                        on_release: root.checkOptions()
 
                 Button:
                     size_hint: (0.23,0.05)
@@ -150,7 +160,6 @@
                     font_size: 25
                     background_color: (1, 1, 1, 0.5)
                     on_release: root.applyTransform()
-
 
                 Label:
                     size_hint: (0.75,0.1)
@@ -188,7 +197,7 @@
                 on_release: root.load(filechooser.selection)
 
 <SaveDialog>:
-    text_input: text_input
+    text_input: txtUserInput
     BoxLayout:
         size: root.size
         pos: root.pos
