@@ -21,6 +21,7 @@ import os
 # Other .py files
 import spatialFilter as sf
 import blendImage as bi
+import combineGradients as cg
 
 # Application Window Options
 #Window.size = (1500, 1000)
@@ -160,11 +161,35 @@ class Root(FloatLayout):
         processIM = imageMan.run()
         self.setInfoString(imageMan.getInfoString(),1)
 
+        # TODO: I'd like to make this cleaner, have a better way of showing saved gradients
+        # Possibly make this so it saved gradients to a file, and then users can select them?
+        # Also need to add a `delete gradient` button
         if self.ids.cbSveGrad.active:
-            self.savedGrad = imageMan.getPixelGradients()
-            self.setInfoString("Saved Gradient",3)
+            try:
+                if not self.savedGrad is None:
+                    self.savedGrad2 = imageMan.getPixelGradients()
+                    self.setInfoString("Saved Second Gradient",3)
+                    self.ids.btnResultGrad.disabled = False
+            except AttributeError:
+                self.savedGrad = imageMan.getPixelGradients()
+                self.setInfoString("Saved Gradient",3)
         
         self.setDisplayImage(processIM)
+    
+    def resultantGradient(self):
+        try:
+            cgObject = cg.mergeGradients(self.savedGrad,self.savedGrad2)
+        except AttributeError:
+            self.createPopup("Don't have 2 saved gradients")
+            return
+        
+        if not cgObject.checkImageDimensions():
+            self.createPopup("Error: Images are of 2 different sizes")
+            return
+        
+        cgObject.run()
+
+        self.setDisplayImage(cgObject.getResultImg())
 
     def undoTransform(self):
         try:
@@ -234,19 +259,23 @@ class Root(FloatLayout):
         level = 1
         if not self.ids.cbGrey.active:
             if self.ids.cbSveGrad.active:
-                infoString += "* Can't save non greyscale image gradients\n"
+                infoString += "* Can't save non greyscale image gradients. Ignoring Option\n"
                 level = 2
             if self.ids.cbAlpha.active:
-                infoString += "* Removing blackspace from RGB may not work as expected"
+                infoString += "* Removing blackspace from RGB may not work as expected\n"
+                level = 2
+            if self.ids.cbGreyVals.active:
+                infoString += "* Normalising values for color images may not act as expected\n"
                 level = 2
         else:
             pass
         
         if infoString == "":
             infoString = "Information Area"
+        else:
+            infoString = "Warning:\n" + infoString
         
         self.setInfoString(infoString,level)
-        
 
     # Sets Info string, level determines text colour
     def setInfoString(self, infoString, level):

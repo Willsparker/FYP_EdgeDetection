@@ -57,12 +57,13 @@ class spatialFilter:
     
         # When we want all values to be within the range of 0-255
     def normaliseImageValues(self, img):
-        vMin, vMax = np.min(img) , np.max(img)
-        width, height = img.shape
+        test = img
+        vMin, vMax = np.min(test) , np.max(test)
+        width, height = test.shape
         for x in range(width):
             for y in range(height):
-                img[x,y] = ((img[x,y] - vMin)/(vMax - vMin)) * 255
-        return img.astype(np.uint8)
+                test[x,y] = ((test[x,y] - vMin)/(vMax - vMin)) * 255
+        return test.astype(np.uint8)
 
     # When we want to just round values to 0-255 (i.e. -VEs become 0, 256+ become 255)
     def cutOffImageValues(self, img):
@@ -78,16 +79,21 @@ class spatialFilter:
             alpha_channel = np.array(a)
             p = Pool(3)
             pro_rchannel, pro_gchannel, pro_bchannel = p.map(self.processChannel,[r_channel,g_channel,b_channel])
+            if self.normGreys:
+                pro_rchannel, pro_gchannel, pro_bchannel = p.map(self.normaliseImageValues, [pro_rchannel,pro_gchannel,pro_bchannel])
+            else:
+                pro_rchannel, pro_gchannel, pro_bchannel = p.map(self.cutOffImageValues, [pro_rchannel,pro_gchannel,pro_bchannel])
+            
             returnImage = Image.merge("RGBA", (Image.fromarray(pro_rchannel.transpose()), Image.fromarray(pro_gchannel.transpose()), Image.fromarray(pro_bchannel.transpose()), Image.fromarray(alpha_channel)))
         else:
             grey, a = self.inputImage.convert('LA').split()
             
             grey_channel = self.processChannel(np.array(grey)).transpose()
             
-            # Can only be done on GreyScale images
-            # cus I cba to do it for colours
             if self.pixelGradCheck:
-                self.pixelGradients = grey_channel
+                # The need for `copy` here messed me up
+                # Python's pass by reference rules are a bit confusing :/
+                self.pixelGradients = np.copy(grey_channel)
 
             if self.normGreys:
                 grey_channel = self.normaliseImageValues(grey_channel)
@@ -132,4 +138,3 @@ if __name__ == '__main__':
     testKernel = spatialFilter(im,[1,0,-1,2,0,-2,1,0,-1], 0.5, True,True, False, True)
     test = testKernel.run()
     print(testKernel.getInfoString())
-    print(testKernel.getPixelGradients())

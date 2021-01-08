@@ -124,6 +124,7 @@
                             size: self.size
                     
                     # TODO: Sort out the column offset
+                    # TODO: Make my own Kivy checkbox w/ label widget
                     Label:
                         text: "Greyscale:"
                         font_size: 20
@@ -132,18 +133,18 @@
                         active: False
                         on_release: root.checkOptions()
                     Label:
-                        text: "Normalise grey vals:"
+                        text: "Normalise pixel values:"
                         font_size: 20
                     CheckBox:
                         id: cbGreyVals
-                        active: True
+                        active: False
                         on_release: root.checkOptions()
                     Label:
                         text: "Remove blackspace:"
                         font_size: 20
                     CheckBox:
                         id: cbAlpha
-                        active: True
+                        active: False
                         on_release: root.checkOptions()
                     Label:
                         text: "Save img gradient"
@@ -160,6 +161,16 @@
                     font_size: 25
                     background_color: (1, 1, 1, 0.5)
                     on_release: root.applyTransform()
+
+                Button:
+                    id: btnResultGrad
+                    size_hint: (0.30,0.05)
+                    pos_hint: {'x':0.70, 'y':0.35}
+                    disabled: True
+                    text: 'Get Resultant Grad'
+                    font_size: 25
+                    background_color: (1, 1, 1, 0.5)
+                    on_release: root.resultantGradient()
 
                 Label:
                     size_hint: (0.75,0.1)
