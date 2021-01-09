@@ -239,7 +239,7 @@ class Root(FloatLayout):
             return
 
         self.image_input.save("./files/tmp.png")
-        alpha = self.ids.blendSlider.value / 100
+        alpha = self.ids.sldrBlendVal.value / 100
         
         output = bi.blendImage.blend(None, self.image_input, blend_image, alpha, self.ids.cbGrey.active, self.ids.cbAlpha.active)
         self.setDisplayImage(output)

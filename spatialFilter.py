@@ -3,6 +3,8 @@ from multiprocessing import Pool
 import numpy as np
 import math
 
+import pixelModifications as pm
+
 class spatialFilter:
     pixelGradients = None
 
@@ -54,21 +56,6 @@ class spatialFilter:
         # Returning outImg as a float, as not to overflow.
         # Overflowed values are sorted later 
         return outImg
-    
-        # When we want all values to be within the range of 0-255
-    def normaliseImageValues(self, img):
-        test = img
-        vMin, vMax = np.min(test) , np.max(test)
-        width, height = test.shape
-        for x in range(width):
-            for y in range(height):
-                test[x,y] = ((test[x,y] - vMin)/(vMax - vMin)) * 255
-        return test.astype(np.uint8)
-
-    # When we want to just round values to 0-255 (i.e. -VEs become 0, 256+ become 255)
-    def cutOffImageValues(self, img):
-        np.clip(img,0,255,out=img)
-        return img.astype(np.uint8)
 
     def run (self):
         if not self.greyCheck:
@@ -80,9 +67,9 @@ class spatialFilter:
             p = Pool(3)
             pro_rchannel, pro_gchannel, pro_bchannel = p.map(self.processChannel,[r_channel,g_channel,b_channel])
             if self.normGreys:
-                pro_rchannel, pro_gchannel, pro_bchannel = p.map(self.normaliseImageValues, [pro_rchannel,pro_gchannel,pro_bchannel])
+                pro_rchannel, pro_gchannel, pro_bchannel = p.map(pm.normaliseImageValues, [pro_rchannel,pro_gchannel,pro_bchannel])
             else:
-                pro_rchannel, pro_gchannel, pro_bchannel = p.map(self.cutOffImageValues, [pro_rchannel,pro_gchannel,pro_bchannel])
+                pro_rchannel, pro_gchannel, pro_bchannel = p.map(pm.cutOffImageValues, [pro_rchannel,pro_gchannel,pro_bchannel])
             
             returnImage = Image.merge("RGBA", (Image.fromarray(pro_rchannel.transpose()), Image.fromarray(pro_gchannel.transpose()), Image.fromarray(pro_bchannel.transpose()), Image.fromarray(alpha_channel)))
         else:
@@ -96,36 +83,22 @@ class spatialFilter:
                 self.pixelGradients = np.copy(grey_channel)
 
             if self.normGreys:
-                grey_channel = self.normaliseImageValues(grey_channel)
+                grey_channel = pm.normaliseImageValues(grey_channel)
             else:
-                grey_channel = self.cutOffImageValues(grey_channel)
+                grey_channel = pm.cutOffImageValues(grey_channel)
             
             alpha_channel = np.array(a)
 
             returnImage = Image.merge("LA", (Image.fromarray(grey_channel), Image.fromarray(alpha_channel)))
 
         if self.alphaCheck:
-            returnImage = self.rmBlackSpace(returnImage)
+            returnImage = pm.rmBlackSpace(returnImage,self.greyCheck)
 
         return returnImage
 
     # Debug code
     def getInfoString(self):
         return self.infoString
-
-    def rmBlackSpace(self, img):
-        pixdata = img.load()
-        width, height = img.size
-
-        for y in range(height):
-            for x in range(width):
-                # Remove BlackSpace
-                if all(v == 0 for v in pixdata[x,y][:-1]):
-                    if self.greyCheck:
-                        pixdata[x,y] = (0,0)
-                    else:
-                        pixdata[x,y] = (0,0,0,0)
-        return img
 
     def getPixelGradients(self):
         return self.pixelGradients
@@ -134,7 +107,7 @@ class spatialFilter:
 
 # Test code
 if __name__ == '__main__':
-    im = Image.open("./images/No fake lens.bmp")
+    im = Image.open("./images/NOT_ON_GITHUB/No fake lens.bmp")
     testKernel = spatialFilter(im,[1,0,-1,2,0,-2,1,0,-1], 0.5, True,True, False, True)
     test = testKernel.run()
     print(testKernel.getInfoString())
