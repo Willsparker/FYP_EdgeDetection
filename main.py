@@ -22,6 +22,7 @@ import os
 import spatialFilter as sf
 import blendImage as bi
 import combineGradients as cg
+import doubleThreshold as dt
 
 # Application Window Options
 #Window.size = (1500, 1000)
@@ -289,6 +290,13 @@ class Root(FloatLayout):
         }
         self.ids.lblInfo.color = level_colours.get(level, lambda: [1,1,1,1])
         self.ids.lblInfo.text = infoString
+
+    def doubleThreshold(self):
+        self.image_input = self.image_input.convert("LA")
+        dtObject = dt.doubleThreshold(self.image_input,int(self.ids.sldrPixelThreshold.value))
+        dtObject.run()
+        self.setDisplayImage(dtObject.getImg())
+
 
 ### TODO:
 # * BlendImage.py - Need to put the better function into the file, and just ensure it works!

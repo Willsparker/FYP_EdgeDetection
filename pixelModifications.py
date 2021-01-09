@@ -1,8 +1,8 @@
 # Separate .py file for storing all the functions used to modify pixel values
 
-import PIL as Image
+# PIL may not be needed
+from PIL import Image
 import numpy as np
-
 
 # Takes in the Image, and check referring to if the image is greyscale or not
 # Returns the image having turned all black pixels transparent
@@ -19,7 +19,7 @@ def rmBlackSpace(img, greyCheck):
                 else:
                     pixdata[x,y] = (0,0,0,0)
     return img
-    
+
 # Takes in float images, ensures all pixel values are between 0-255
 # returns the normalised image, as type np.uint8
 def normaliseImageValues(img):

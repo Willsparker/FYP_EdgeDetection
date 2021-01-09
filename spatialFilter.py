@@ -94,6 +94,8 @@ class spatialFilter:
         if self.alphaCheck:
             returnImage = pm.rmBlackSpace(returnImage,self.greyCheck)
 
+        
+
         return returnImage
 
     # Debug code
