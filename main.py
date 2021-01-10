@@ -179,7 +179,7 @@ class Root(FloatLayout):
     
     def resultantGradient(self):
         try:
-            cgObject = cg.mergeGradients(self.savedGrad,self.savedGrad2)
+            cgObject = cg.mergeGradients(self.savedGrad,self.savedGrad2,False)
         except AttributeError:
             self.createPopup("Don't have 2 saved gradients")
             return
