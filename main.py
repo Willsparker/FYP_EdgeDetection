@@ -50,10 +50,10 @@ class Root(FloatLayout):
         self.updateGradientInfo()
     
     def createPopup(self,content):
-        popUp = Popup(title='Test', 
-            content=Label(text=content),
-            size_hint=(None, None),         #by default this is (1,1)
-            size=(400,400))                 # TODO: Make this dynamic
+        popUp = Popup(title='Error', 
+            content=Label(text=content,font_size=30),
+            size_hint=(0.5,0.5),         #by default this is (1,1)
+            )                 # TODO: Make this dynamic
         popUp.open()
 
     def dismiss_popup(self):
@@ -278,8 +278,13 @@ class Root(FloatLayout):
         self.ids.lblInfo.text = infoString
 
     def doubleThreshold(self):
-        self.image_input = self.image_input.convert("LA")
-        dtObject = dt.doubleThreshold(self.image_input,int(self.ids.sldrPixelThreshold.value))
+        try:
+            self.image_input = self.image_input.convert("LA")
+        except AttributeError:
+            self.createPopup("Please load in a base image")
+            return
+
+        dtObject = dt.doubleThreshold(self.image_input,int(self.ids.sldrLowerPixThresh.value),int(self.ids.sldrUpperPixThresh.value))
         dtObject.run()
         self.setDisplayImage(dtObject.getImg())
 

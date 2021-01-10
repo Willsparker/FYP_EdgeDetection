@@ -193,13 +193,13 @@
 
                 Label:
                     size_hint: (0.75,0.1)
-                    pos_hint: {'x':0.15, 'y':0.10}
+                    pos_hint: {'x':0.15, 'y':0.20}
                     text: "Blend levels: " + str(int(sldrBlendVal.value))
                     font_size: 20
                 Slider:
                     id: sldrBlendVal
                     size_hint: (0.75,0.1)
-                    pos_hint: {'x':0.15, 'y':0.05}
+                    pos_hint: {'x':0.15, 'y':0.15}
                     value_track: True
                     value_track_color: [0,1,0,1]
                     min: 1
@@ -207,13 +207,28 @@
                     value: 50
                     orientation: 'horizontal'
                 Slider:
-                    id: sldrPixelThreshold
+                    id: sldrUpperPixThresh
+                    size_hint: (0.75,0.1)
+                    pos_hint: {'x':0.15, 'y':0.10}
+                    value_track: True
+                    value_track_color: [0,0,1,1]
+                    min: int(sldrLowerPixThresh.value)
+                    max: 255
+                    value: 200
+                    orientation: 'horizontal'
+                Label:
+                    size_hint: (0.75,0.1)
+                    pos_hint: {'x':0.15, 'y':0.05}
+                    text: "Lower Bound: " + str(int(sldrLowerPixThresh.value)) + " Higher Bound: " + str(int(sldrUpperPixThresh.value))
+                    font_size: 20
+                Slider: 
+                    id: sldrLowerPixThresh
                     size_hint: (0.75,0.1)
                     pos_hint: {'x':0.15, 'y':0.01}
                     value_track: True
                     value_track_color: [0,0,1,1]
                     min: 0
-                    max: 255
+                    max: int(sldrUpperPixThresh.value)
                     value: 50
                     orientation: 'horizontal'
 
@@ -235,7 +250,6 @@
             Button:
                 text: "Cancel"
                 on_release: root.cancel()
-
             Button:
                 text: "Load"
                 on_release: root.load(filechooser.selection)
