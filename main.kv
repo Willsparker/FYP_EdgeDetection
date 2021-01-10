@@ -67,10 +67,21 @@
                 allow_stretch: True
             Label:
                 id: lblInfo
-                size_hint: (0.5,0.25)
-                pos_hint: {'y': 0.0 , 'x': 0}
+                size_hint: (0.4,0.25)
+                pos_hint: {'x': 0.1, 'y': 0}
                 text: "Information Area"
-                font_size: 25
+                halign: 'left'
+                valign: 'top'
+                markup: True
+                font_size: 18
+            Label:
+                id: lblGrads
+                size_hint: (0.1,0.25)
+                pos_hint: {'x': 0.02, 'y':0}
+                multiline: True
+                halign: 'left'
+                markup: True
+                font_size: 17
 
             # Options Menu
             FloatLayout:

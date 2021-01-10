@@ -37,6 +37,9 @@ class spatialFilter:
     
         offset = int((maskSize-1)/2)
         outImg = np.zeros((oriImgX, oriImgY),dtype=float)
+
+        # Possibly a better way of doing this?!
+        # https://www.cs.utexas.edu/~theshark/courses/cs324e/lectures/cs324e-6.pdf
         for rowIndex in range(oriImgX-1):
             for columnIndex in range(oriImgY-1):
                 x = [item for item in (list(range(rowIndex-offset,rowIndex)) + list(range(rowIndex,rowIndex+offset+1))) if item >=0 if item < (oriImgX) ]

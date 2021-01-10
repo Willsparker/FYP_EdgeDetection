@@ -25,10 +25,7 @@ import combineGradients as cg
 import doubleThreshold as dt
 
 # Application Window Options
-#Window.size = (1500, 1000)
-#Window.toggle_fullscreen()
 #Window.set_icon("")
-#Window.top = 20
 
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
@@ -50,6 +47,7 @@ class Root(FloatLayout):
     def __init__(self, **kwargs):
         super(Root,self).__init__(**kwargs)
         self.initialiseGrid(3)
+        self.updateGradientInfo()
     
     def createPopup(self,content):
         popUp = Popup(title='Test', 
@@ -84,6 +82,7 @@ class Root(FloatLayout):
             return
 
         self.setDisplayImage(inputImage)
+        self.saveDisplayImage
 
         #This try/except allows me to reuse load function for the Undo function
         try:
@@ -98,7 +97,6 @@ class Root(FloatLayout):
         except UnidentifiedImageError:
             self.createPopup("Not a viable Image format")
             return
-        
         self.dismiss_popup()
         self.blendImages(blend_image)
 
@@ -153,27 +151,29 @@ class Root(FloatLayout):
             matrixCoefficient = 1
 
         if self.image_input:
-            self.image_input.save("./files/tmp.png")
+            self.saveDisplayImage()
         else:
             self.createPopup("Please load in a base image")
             return
 
         imageMan = sf.spatialFilter(self.image_input, inputMatrix, matrixCoefficient, self.ids.cbGrey.active, self.ids.cbAlpha.active, self.ids.cbGreyVals.active, self.ids.cbSveGrad.active)
         processIM = imageMan.run()
-        self.setInfoString(imageMan.getInfoString(),1)
+        self.ids.lblInfo.text = imageMan.getInfoString()
 
         # TODO: I'd like to make this cleaner, have a better way of showing saved gradients
         # Possibly make this so it saved gradients to a file, and then users can select them?
         # Also need to add a `delete gradient` button
-        if self.ids.cbSveGrad.active:
+        if self.ids.cbSveGrad.active and self.ids.cbGrey.active:
             try:
                 if not self.savedGrad is None:
                     self.savedGrad2 = imageMan.getPixelGradients()
-                    self.setInfoString("Saved Second Gradient",3)
                     self.ids.btnResultGrad.disabled = False
             except AttributeError:
                 self.savedGrad = imageMan.getPixelGradients()
-                self.setInfoString("Saved Gradient",3)
+            finally:
+                self.updateGradientInfo()
+        
+        
         
         self.setDisplayImage(processIM)
     
@@ -245,6 +245,9 @@ class Root(FloatLayout):
         output = bi.blendImage.blend(None, self.image_input, blend_image, alpha, self.ids.cbGrey.active, self.ids.cbAlpha.active)
         self.setDisplayImage(output)
 
+    def saveDisplayImage(self):
+        self.image_input.save("./files/tmp.png")
+
     # Sets the Kivy image widget's texture
     def setDisplayImage(self, image):
         self.image_input = image
@@ -257,38 +260,21 @@ class Root(FloatLayout):
     # Prints warning if the options are silly
     def checkOptions(self):
         infoString = ""
-        level = 1
         if not self.ids.cbGrey.active:
             if self.ids.cbSveGrad.active:
-                infoString += "* Can't save non greyscale image gradients. Ignoring Option\n"
-                level = 2
+                infoString += "[color=ed300e]* Can't save non greyscale image gradients. Ignoring Option[/color]\n"
             if self.ids.cbAlpha.active:
-                infoString += "* Removing blackspace from RGB may not work as expected\n"
-                level = 2
+                infoString += "[color=ebeb15]* Removing blackspace from RGB may not work as expected[/color]\n"
             if self.ids.cbGreyVals.active:
-                infoString += "* Normalising values for color images may not act as expected\n"
-                level = 2
+                infoString += "[color=ebeb15]* Normalising values for color images may not act as expected[/color]\n"
         else:
             pass
         
         if infoString == "":
             infoString = "Information Area"
         else:
-            infoString = "Warning:\n" + infoString
+            infoString = "[size=19]Warning:\n[/size]" + infoString
         
-        self.setInfoString(infoString,level)
-
-    # Sets Info string, level determines text colour
-    def setInfoString(self, infoString, level):
-        level_colours = {
-            # 1 is White
-            1: [1,1,1,1],
-            # 2 is Red
-            2: [1,0,0,1],
-            # 3 is Green
-            3: [1,1,0,1]
-        }
-        self.ids.lblInfo.color = level_colours.get(level, lambda: [1,1,1,1])
         self.ids.lblInfo.text = infoString
 
     def doubleThreshold(self):
@@ -297,11 +283,30 @@ class Root(FloatLayout):
         dtObject.run()
         self.setDisplayImage(dtObject.getImg())
 
+    def updateGradientInfo(self):
+        infoString = "Gradient 1 : "
+        try:
+            if not self.savedGrad is None:
+                infoString += "[color=fc03db]Saved[/color]"
+        except:
+            infoString += "Empty"
+        
+        infoString += "\nGradient 2 : "
+
+        try:
+            if not self.savedGrad2 is None:
+                infoString += "[color=fc03db]Saved[/color]"
+        except:
+            infoString += "Empty"
+    
+        self.ids.lblGrads.text = infoString
+
+
 
 ### TODO:
 # * BlendImage.py - Need to put the better function into the file, and just ensure it works!
 # * Intensity bounds - for greyscale images, implement functions that allow for lower and upper
-# boundaries are cut out. 
+# boundaries are cut out. ** Sorta Done **
 # * Shape detection ... :grimace
 # * AS per: https://stackoverflow.com/a/52916385 ; If checkbox, store non normalised pixel values; 
 # Then if there's another run, take them and find the Gradient. 
@@ -318,7 +323,7 @@ class SpatialApp(App):
         
         # Resize & Centre Window
         initialCenter = Window.center
-        Window.size = (1500, 1000)
+        Window.size = (1800, 1200)
         variation_x = Window.center[0] - initialCenter[0]
         variation_y = Window.center[1] - initialCenter[1]
         Window.left -= variation_x
