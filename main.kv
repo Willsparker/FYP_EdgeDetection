@@ -58,10 +58,6 @@
                     "-ve Laplacian" , "-ve LoG" , "+ve Laplacian", "+ve LoG"]
                 font_size: 20
                 on_text: root.on_spinner_change(self.text)
-            Button:
-                text: "Blend"
-                font_size: 20
-                on_release: root.show_load(2)
 
         # Image Viewer + Options Menu
         FloatLayout:
@@ -88,6 +84,15 @@
                 halign: 'left'
                 markup: True
                 font_size: 17
+            Button:
+                id: btnDelGrads
+                size_hint: (0.1,0.05)
+                pos_hint: {'x': 0.02, 'y':0}
+                text: "Delete Gradients"
+                font_size: 20
+                background_color: (1, 1, 1, 0.5)
+                on_release: root.deleteGradients()
+
 
             # Options Menu
             FloatLayout:
@@ -129,7 +134,7 @@
                 GridLayout:
                     size_hint: (0.5,0.1)
                     pos_hint: {'x':0.05, 'y':0.38}
-                    rows:4
+                    rows:5
                     cols:2
 
                     # Set background to dark grey
@@ -164,10 +169,17 @@
                         active: False
                         on_release: root.checkOptions()
                     Label:
-                        text: "Save img gradient"
+                        text: "Save img gradient:"
                         font_size: 20
                     CheckBox:
                         id: cbSveGrad
+                        active: False
+                        on_release: root.checkOptions()
+                    Label:
+                        text: "Colourise result gradient:"
+                        font_size: 20
+                    CheckBox:
+                        id: cbColrGrad
                         active: False
                         on_release: root.checkOptions()
 
@@ -189,54 +201,63 @@
                     background_color: (1, 1, 1, 0.5)
                     on_release: root.resultantGradient()
 
-                Button:
-                    size_hint: (0.23,0.05)
-                    pos_hint: {'x':0.70, 'y':0.29}
-                    text: 'Double threshold'
-                    font_size: 25
-                    background_color: (1, 1, 1, 0.5)
-                    on_release: root.doubleThreshold()
-
+                # Stuff to do with Blending
                 Label:
-                    size_hint: (0.75,0.1)
-                    pos_hint: {'x':0.15, 'y':0.20}
+                    size_hint: (0.1,0.1)
+                    pos_hint: {'x':0.05, 'y':0.27}
                     text: "Blend levels: " + str(int(sldrBlendVal.value))
                     font_size: 20
                 Slider:
                     id: sldrBlendVal
-                    size_hint: (0.75,0.1)
-                    pos_hint: {'x':0.15, 'y':0.15}
+                    size_hint: (0.1,0.3)
+                    pos_hint: {'x':0.0, 'y':0.0}
                     value_track: True
                     value_track_color: [0,1,0,1]
                     min: 1
                     max: 100
-                    value: 50
-                    orientation: 'horizontal'
+                    value: 25
+                    orientation: 'vertical'
+                Button:
+                    size_hint: (0.17,0.05)
+                    pos_hint: {'x': 0.1, 'y': 0.0}
+                    text: "Blend"
+                    font_size: 25
+                    background_color: (1, 1, 1, 0.5)
+                    on_release: root.show_load(2)
+
+                # Stuff to do with intensity boundaries
                 Slider:
                     id: sldrUpperPixThresh
-                    size_hint: (0.75,0.1)
-                    pos_hint: {'x':0.15, 'y':0.10}
+                    size_hint: (0.1,0.3)
+                    pos_hint: {'x':0.30, 'y':0.0}
                     value_track: True
                     value_track_color: [0,0,1,1]
-                    min: int(sldrLowerPixThresh.value)
+                    min: int(sldrLowerPixThresh.value)+1
                     max: 255
                     value: 200
-                    orientation: 'horizontal'
+                    orientation: 'vertical'
                 Label:
                     size_hint: (0.75,0.1)
-                    pos_hint: {'x':0.15, 'y':0.05}
+                    pos_hint: {'x':0.10, 'y':0.27}
                     text: "Lower Bound: " + str(int(sldrLowerPixThresh.value)) + " Higher Bound: " + str(int(sldrUpperPixThresh.value))
                     font_size: 20
                 Slider: 
                     id: sldrLowerPixThresh
-                    size_hint: (0.75,0.1)
-                    pos_hint: {'x':0.15, 'y':0.01}
+                    size_hint: (0.1,0.3)
+                    pos_hint: {'x':0.35, 'y':0.0}
                     value_track: True
                     value_track_color: [0,0,1,1]
                     min: 0
-                    max: int(sldrUpperPixThresh.value)
+                    max: int(sldrUpperPixThresh.value)-1
                     value: 50
-                    orientation: 'horizontal'
+                    orientation: 'vertical'
+                Button:
+                    size_hint: (0.23,0.05)
+                    pos_hint: {'x':0.45, 'y':0.00}
+                    text: 'Double threshold'
+                    font_size: 25
+                    background_color: (1, 1, 1, 0.5)
+                    on_release: root.doubleThreshold()
 
                     
                 

@@ -41,6 +41,8 @@ class Root(FloatLayout):
     savefile = ObjectProperty(None)
     image_input = ObjectProperty(None)
     image_blend = ObjectProperty(None)
+    savedGrad1 = None
+    savedGrad2 = None
 
     # This is to allow the grid to start at 3. Weird this is required tho
     # See: https://www.pisciottablog.com/2020/03/30/troubleshooting-attributeerror-super-object-has-no-attribute-__getattr__/
@@ -162,16 +164,15 @@ class Root(FloatLayout):
 
         # TODO: I'd like to make this cleaner, have a better way of showing saved gradients
         # Possibly make this so it saved gradients to a file, and then users can select them?
-        # Also need to add a `delete gradient` button
+
         if self.ids.cbSveGrad.active and self.ids.cbGrey.active:
-            try:
-                if not self.savedGrad is None:
-                    self.savedGrad2 = imageMan.getPixelGradients()
-                    self.ids.btnResultGrad.disabled = False
-            except AttributeError:
-                self.savedGrad = imageMan.getPixelGradients()
-            finally:
-                self.updateGradientInfo()
+            if self.savedGrad1 is None:
+                self.savedGrad1 = imageMan.getPixelGradients()
+            else:             
+                self.savedGrad2 = imageMan.getPixelGradients()
+                self.ids.btnResultGrad.disabled = False
+
+            self.updateGradientInfo()
         
         
         
@@ -179,7 +180,7 @@ class Root(FloatLayout):
     
     def resultantGradient(self):
         try:
-            cgObject = cg.mergeGradients(self.savedGrad,self.savedGrad2,False)
+            cgObject = cg.mergeGradients(self.savedGrad1,self.savedGrad2,self.ids.cbColrGrad.active)
         except AttributeError:
             self.createPopup("Don't have 2 saved gradients")
             return
@@ -191,6 +192,11 @@ class Root(FloatLayout):
         cgObject.run()
 
         self.setDisplayImage(cgObject.getResultImg())
+
+    def deleteGradients(self):
+        self.savedGrad1 = None
+        self.savedGrad2 = None
+        self.updateGradientInfo()
 
     def undoTransform(self):
         try:
@@ -290,18 +296,16 @@ class Root(FloatLayout):
 
     def updateGradientInfo(self):
         infoString = "Gradient 1 : "
-        try:
-            if not self.savedGrad is None:
-                infoString += "[color=fc03db]Saved[/color]"
-        except:
+        if not self.savedGrad1 is None:
+            infoString += "[color=fc03db]Saved[/color]"
+        else:
             infoString += "Empty"
         
         infoString += "\nGradient 2 : "
 
-        try:
-            if not self.savedGrad2 is None:
-                infoString += "[color=fc03db]Saved[/color]"
-        except:
+        if not self.savedGrad2 is None:
+            infoString += "[color=fc03db]Saved[/color]"
+        else:
             infoString += "Empty"
     
         self.ids.lblGrads.text = infoString

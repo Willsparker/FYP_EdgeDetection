@@ -36,13 +36,18 @@ class mergeGradients:
                 self.outImg[x,y] = sqrt(self.firstImage[x,y]**2 + self.secondImage[x,y]**2)
                 # This color thing kind of works, but times getting on
                 # We'll see if I can get it working in future
-                if self.color:
+                if self.outImg[x,y] > 255:
+                    self.outImg[x,y] = 255
+
+                if self.color and self.outImg[x,y] > 100:
                     hue = atan(self.secondImage[x,y]/self.firstImage[x,y])
                     RGB = colorsys.hls_to_rgb(hue,0.5,0.5)
                     R[x,y] = int(RGB[0] * 255)
                     G[x,y] = int(RGB[1] * 255)
                     B[x,y] = int(RGB[2] * 255)
-        
+                elif self.color:
+                    R[x,y], G[x,y], B[x,y] = 0,0,0
+
         if self.color:
             self.colourImage = Image.merge("RGB", (Image.fromarray(R).convert('L'), Image.fromarray(G).convert('L'), Image.fromarray(B).convert('L')))
 
