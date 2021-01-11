@@ -1,6 +1,5 @@
 #:kivy 1.11.0
 
-
 ### Legend:
 # Rules:
 #  - camelCase
@@ -15,7 +14,6 @@
 #  - Slider = sldr
 #  - Spinner = spnr
 #  - CheckBox = cb
-
 
 <Root>:
     # Background of whole app
@@ -92,7 +90,6 @@
                 font_size: 20
                 background_color: (1, 1, 1, 0.5)
                 on_release: root.deleteGradients()
-
 
             # Options Menu
             FloatLayout:
@@ -175,13 +172,6 @@
                         id: cbSveGrad
                         active: False
                         on_release: root.checkOptions()
-                    Label:
-                        text: "Colourise result gradient:"
-                        font_size: 20
-                    CheckBox:
-                        id: cbColrGrad
-                        active: False
-                        on_release: root.checkOptions()
 
                 Button:
                     size_hint: (0.23,0.05)
@@ -190,7 +180,6 @@
                     font_size: 25
                     background_color: (1, 1, 1, 0.5)
                     on_release: root.applyTransform()
-
                 Button:
                     id: btnResultGrad
                     size_hint: (0.30,0.05)
@@ -200,6 +189,25 @@
                     font_size: 25
                     background_color: (1, 1, 1, 0.5)
                     on_release: root.resultantGradient()
+                Button:
+                    id: btnColourize
+                    size_hint: (0.25,0.05)
+                    pos_hint: {'x':0.70, 'y':0.29}
+                    disabled: True
+                    text: 'Colourize Image'
+                    font_size: 25
+                    background_color: (1, 1, 1, 0.5)
+                    on_release: root.colourizeImage()
+                Button:
+                    id: btnCanny
+                    size_hint: (0.30,0.05)
+                    pos_hint: {'x':0.70, 'y':0.23}
+                    disabled: True
+                    text: 'Canny Edge Detection'
+                    font_size: 25
+                    background_color: (1, 1, 1, 0.5)
+                    on_release: root.cannyDetection()
+
 
                 # Stuff to do with Blending
                 Label:
@@ -252,15 +260,12 @@
                     value: 50
                     orientation: 'vertical'
                 Button:
-                    size_hint: (0.23,0.05)
+                    size_hint: (0.32,0.05)
                     pos_hint: {'x':0.45, 'y':0.00}
-                    text: 'Double threshold'
+                    text: 'Quantize Intensity Values'
                     font_size: 25
                     background_color: (1, 1, 1, 0.5)
-                    on_release: root.doubleThreshold()
-
-                    
-                
+                    on_release: root.quantizeImageIntensities()
 
 <LoadDialog>:
     BoxLayout:

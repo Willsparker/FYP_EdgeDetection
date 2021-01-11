@@ -22,7 +22,9 @@ import os
 import spatialFilter as sf
 import blendImage as bi
 import combineGradients as cg
-import doubleThreshold as dt
+import quantizeIntensities as qi
+import colourize as c
+import cannyEdgeDetection as ce
 
 # Application Window Options
 #Window.set_icon("")
@@ -43,6 +45,8 @@ class Root(FloatLayout):
     image_blend = ObjectProperty(None)
     savedGrad1 = None
     savedGrad2 = None
+    savedResultGrad = None
+    savedTheta = None
 
     # This is to allow the grid to start at 3. Weird this is required tho
     # See: https://www.pisciottablog.com/2020/03/30/troubleshooting-attributeerror-super-object-has-no-attribute-__getattr__/
@@ -180,7 +184,7 @@ class Root(FloatLayout):
     
     def resultantGradient(self):
         try:
-            cgObject = cg.mergeGradients(self.savedGrad1,self.savedGrad2,self.ids.cbColrGrad.active)
+            cgObject = cg.mergeGradients(self.savedGrad1,self.savedGrad2)
         except AttributeError:
             self.createPopup("Don't have 2 saved gradients")
             return
@@ -190,12 +194,18 @@ class Root(FloatLayout):
             return
         
         cgObject.run()
-
         self.setDisplayImage(cgObject.getResultImg())
+        self.savedTheta = cgObject.getTheta()
+        self.savedResultGrad = cgObject.getOutImg()
+        self.updateGradientInfo()
+        self.ids.btnColourize.disabled = False
+        self.ids.btnCanny.disabled = False
 
     def deleteGradients(self):
         self.savedGrad1 = None
         self.savedGrad2 = None
+        self.savedResultGrad = None
+        self.theta = None
         self.updateGradientInfo()
 
     def undoTransform(self):
@@ -283,17 +293,19 @@ class Root(FloatLayout):
         
         self.ids.lblInfo.text = infoString
 
-    def doubleThreshold(self):
+    def quantizeImageIntensities(self):
         try:
             self.image_input = self.image_input.convert("LA")
         except AttributeError:
             self.createPopup("Please load in a base image")
             return
 
-        dtObject = dt.doubleThreshold(self.image_input,int(self.ids.sldrLowerPixThresh.value),int(self.ids.sldrUpperPixThresh.value))
-        dtObject.run()
-        self.setDisplayImage(dtObject.getImg())
+        self.image_input.save("./files/tmp.png")
+        qiObject = qi.quanitizeIntensities(self.image_input,int(self.ids.sldrLowerPixThresh.value),int(self.ids.sldrUpperPixThresh.value))
+        qiObject.run()
+        self.setDisplayImage(qiObject.getImg())
 
+    # TODO: Clean this up
     def updateGradientInfo(self):
         infoString = "Gradient 1 : "
         if not self.savedGrad1 is None:
@@ -307,8 +319,34 @@ class Root(FloatLayout):
             infoString += "[color=fc03db]Saved[/color]"
         else:
             infoString += "Empty"
+
+        infoString += "\n\nResult Gradiet : "
+
+        if not self.savedResultGrad is None:
+            infoString += "[color=fc03db]Saved[/color]"
+        else:
+            infoString += "Empty"
+        
+        infoString += "\nTheta : "
+
+        if not self.savedTheta is None:
+            infoString += "[color=fc03db]Saved[/color]"
+        else:
+            infoString += "Empty"
     
         self.ids.lblGrads.text = infoString
+
+    def colourizeImage(self):
+        # Come back to this - May end up deciding to do it after Canny Edge, only.
+        cObject = c.colourize(self.savedResultGrad,self.savedTheta)
+        cObject.run()
+        self.setDisplayImage(cObject.getImage())
+
+    def cannyDetection(self):
+        ceObject = ce.cannyEdgeDetection(self.savedResultGrad,self.savedTheta)
+        ceObject.run()
+        self.setDisplayImage(ceObject.getImage())
+        self.savedResultGrad = ceObject.getImageArray()
 
 
 
