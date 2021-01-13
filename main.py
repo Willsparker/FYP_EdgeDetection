@@ -47,6 +47,7 @@ class Root(FloatLayout):
     savedGrad2 = None
     savedResultGrad = None
     savedTheta = None
+    oldSavedGrad = None
 
     # This is to allow the grid to start at 3. Weird this is required tho
     # See: https://www.pisciottablog.com/2020/03/30/troubleshooting-attributeerror-super-object-has-no-attribute-__getattr__/
@@ -88,7 +89,6 @@ class Root(FloatLayout):
             return
 
         self.setDisplayImage(inputImage)
-        self.saveDisplayImage
 
         #This try/except allows me to reuse load function for the Undo function
         try:
@@ -128,7 +128,7 @@ class Root(FloatLayout):
         try:
             self.image_input.save(filename)
         except:
-            self.createPopup("Can't save a non altered image")
+            self.createPopup("Something went wrong")
         self.dismiss_popup()
 
     def getFraction(self,str):
@@ -156,9 +156,7 @@ class Root(FloatLayout):
             self.ids.txtMatrixCoeff.text = "1"
             matrixCoefficient = 1
 
-        if self.image_input:
-            self.saveDisplayImage()
-        else:
+        if not self.image_input:
             self.createPopup("Please load in a base image")
             return
 
@@ -178,8 +176,7 @@ class Root(FloatLayout):
 
             self.updateGradientInfo()
         
-        
-        
+        self.image_input.save("./files/tmp.png")
         self.setDisplayImage(processIM)
     
     def resultantGradient(self):
@@ -194,6 +191,7 @@ class Root(FloatLayout):
             return
         
         cgObject.run()
+        self.image_input.save("./files/tmp.png")
         self.setDisplayImage(cgObject.getResultImg())
         self.savedTheta = cgObject.getTheta()
         self.savedResultGrad = cgObject.getOutImg()
@@ -205,7 +203,10 @@ class Root(FloatLayout):
         self.savedGrad1 = None
         self.savedGrad2 = None
         self.savedResultGrad = None
-        self.theta = None
+        self.savedTheta = None
+        self.ids.btnColourize.disabled = True
+        self.ids.btnCanny.disabled = True
+        self.ids.btnResultGrad.disabled = True
         self.updateGradientInfo()
 
     def undoTransform(self):
@@ -213,6 +214,9 @@ class Root(FloatLayout):
             self.load(['./files/tmp.png'])
         except FileNotFoundError:
             self.createPopup("No previously altered image")
+
+        if self.oldSavedGrad is not None:
+            self.savedResultGrad = self.oldSavedGrad
 
     def on_spinner_change(self, text):
         text = text.lower().replace(" ", "")
@@ -261,11 +265,12 @@ class Root(FloatLayout):
         output = bi.blendImage.blend(None, self.image_input, blend_image, alpha, self.ids.cbGrey.active, self.ids.cbAlpha.active)
         self.setDisplayImage(output)
 
-    def saveDisplayImage(self):
-        self.image_input.save("./files/tmp.png")
-
     # Sets the Kivy image widget's texture
     def setDisplayImage(self, image):
+        #try:
+        #    self.image_input.save("./files/tmp.png")
+        #except:
+        #    pass
         self.image_input = image
         data = BytesIO()
         image.save(data, format='png')
@@ -300,9 +305,9 @@ class Root(FloatLayout):
             self.createPopup("Please load in a base image")
             return
 
-        self.image_input.save("./files/tmp.png")
         qiObject = qi.quanitizeIntensities(self.image_input,int(self.ids.sldrLowerPixThresh.value),int(self.ids.sldrUpperPixThresh.value))
         qiObject.run()
+        self.image_input.save("./files/tmp.png")
         self.setDisplayImage(qiObject.getImg())
 
     # TODO: Clean this up
@@ -340,20 +345,26 @@ class Root(FloatLayout):
         # Come back to this - May end up deciding to do it after Canny Edge, only.
         cObject = c.colourize(self.savedResultGrad,self.savedTheta)
         cObject.run()
+        self.image_input.save("./files/tmp.png")
         self.setDisplayImage(cObject.getImage())
+        del cObject
 
     def cannyDetection(self):
         ceObject = ce.cannyEdgeDetection(self.savedResultGrad,self.savedTheta)
-        ceObject.run()
+        ceObject.run(int(self.ids.sldrLowerPixThresh.value),int(self.ids.sldrUpperPixThresh.value))
+        self.image_input.save("./files/tmp.png")
         self.setDisplayImage(ceObject.getImage())
+        self.oldSavedGrad = self.savedResultGrad
         self.savedResultGrad = ceObject.getImageArray()
+        del ceObject
+
+        
 
 
 
 ### TODO:
 # * BlendImage.py - Need to put the better function into the file, and just ensure it works!
-# * Intensity bounds - for greyscale images, implement functions that allow for lower and upper
-# boundaries are cut out. ** Sorta Done **
+
 # * Shape detection ... :grimace
 # * AS per: https://stackoverflow.com/a/52916385 ; If checkbox, store non normalised pixel values; 
 # Then if there's another run, take them and find the Gradient. 

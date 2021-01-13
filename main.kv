@@ -192,7 +192,7 @@
                 Button:
                     id: btnColourize
                     size_hint: (0.25,0.05)
-                    pos_hint: {'x':0.70, 'y':0.29}
+                    pos_hint: {'x':0.70, 'y':0.23}
                     disabled: True
                     text: 'Colourize Image'
                     font_size: 25
@@ -201,7 +201,7 @@
                 Button:
                     id: btnCanny
                     size_hint: (0.30,0.05)
-                    pos_hint: {'x':0.70, 'y':0.23}
+                    pos_hint: {'x':0.70, 'y':0.29}
                     disabled: True
                     text: 'Canny Edge Detection'
                     font_size: 25
@@ -247,7 +247,7 @@
                 Label:
                     size_hint: (0.75,0.1)
                     pos_hint: {'x':0.10, 'y':0.27}
-                    text: "Lower Bound: " + str(int(sldrLowerPixThresh.value)) + " Higher Bound: " + str(int(sldrUpperPixThresh.value))
+                    text: "Higher Bound: " + str(int(sldrUpperPixThresh.value)) + " Lower Bound: " + str(int(sldrLowerPixThresh.value))
                     font_size: 20
                 Slider: 
                     id: sldrLowerPixThresh
