@@ -20,14 +20,11 @@ import os
 
 # Other .py files
 import spatialFilter as sf
-import blendImage as bi
+import pixelModifications as pm
 import combineGradients as cg
 import quantizeIntensities as qi
 import colourize as c
 import cannyEdgeDetection as ce
-
-# Application Window Options
-#Window.set_icon("")
 
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
@@ -262,7 +259,7 @@ class Root(FloatLayout):
         self.image_input.save("./files/tmp.png")
         alpha = self.ids.sldrBlendVal.value / 100
         
-        output = bi.blendImage.blend(None, self.image_input, blend_image, alpha, self.ids.cbGrey.active, self.ids.cbAlpha.active)
+        output = pm.blend(self.image_input, blend_image, alpha, self.ids.cbGrey.active)
         self.setDisplayImage(output)
 
     # Sets the Kivy image widget's texture
@@ -358,16 +355,13 @@ class Root(FloatLayout):
         self.savedResultGrad = ceObject.getImageArray()
         del ceObject
 
+
         
 
 
 
 ### TODO:
-# * BlendImage.py - Need to put the better function into the file, and just ensure it works!
-
 # * Shape detection ... :grimace
-# * AS per: https://stackoverflow.com/a/52916385 ; If checkbox, store non normalised pixel values; 
-# Then if there's another run, take them and find the Gradient. 
 
 # * Make the Spinner dynamically fill in the __init__ function
 # * We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call

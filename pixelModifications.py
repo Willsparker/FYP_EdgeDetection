@@ -35,3 +35,19 @@ def normaliseImageValues(img):
 def cutOffImageValues(img):
     np.clip(img,0,255,out=img)
     return img.astype(np.uint8)
+
+# Takes in 2 images that we want to blend together
+# Returns the 2 images as PIL Image
+def blend(im1,im2,alpha,greyCheck):
+
+    if greyCheck:
+        im1 = im1.convert('LA')
+        im2 = im2.convert('LA')
+    else:
+        im1 = im1.convert('RGBA')
+        im2 = im2.convert('RGBA')
+
+    if im2.size != im1.size:
+        im2 = im2.resize(im1.size)
+
+    return Image.blend(im1,im2,alpha)
