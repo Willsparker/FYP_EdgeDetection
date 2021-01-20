@@ -264,11 +264,6 @@ class Root(FloatLayout):
 
     # Sets the Kivy image widget's texture
     def setDisplayImage(self, image):
-        #try:
-        #    self.image_input.save("./files/tmp.png")
-        #except:
-        #    pass
-        print(image.size)
         self.image_input = image
         data = BytesIO()
         image.save(data, format='png')
@@ -340,7 +335,6 @@ class Root(FloatLayout):
         self.ids.lblGrads.text = infoString
 
     def colourizeImage(self):
-        # Come back to this - May end up deciding to do it after Canny Edge, only.
         cObject = c.colourize(self.savedResultGrad,self.savedTheta)
         cObject.run()
         self.image_input.save("./files/tmp.png")

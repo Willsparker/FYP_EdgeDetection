@@ -11,7 +11,6 @@ class spatialFilter:
     def __init__(self, image, matrix, matCoeff, greyCheck, alphaCheck, normGreyCheck, pixelGradCheck):
         self.infoString = ""
         self.inputImage = image
-        self.imagePath = image
         self.mask = matrix
         self.matrixCo = matCoeff
         self.mask.reverse()
@@ -19,8 +18,10 @@ class spatialFilter:
         self.alphaCheck = alphaCheck
         self.normGreys = normGreyCheck
         self.pixelGradCheck = pixelGradCheck
+        maskSize = int(math.sqrt(len(matrix)))
+        maskMat = np.array(matrix).reshape(maskSize,maskSize)
 
-        self.infoString += "\nMask: " + str(matrix)
+        self.infoString += "\nMask: \n" + str(maskMat)
         self.infoString += "\nMatrix Coefficient: " + str(matCoeff)
         self.infoString += "\nGreyScale: " + str(greyCheck)
         self.infoString += "\nRm BlankSpace: " + str(alphaCheck)
@@ -107,5 +108,5 @@ class spatialFilter:
 if __name__ == '__main__':
     im = Image.open("./images/NOT_ON_GITHUB/No fake lens.bmp")
     testKernel = spatialFilter(im,[1,0,-1,2,0,-2,1,0,-1], 0.5, True,True, False, True)
-    test = testKernel.run()
+    #test = testKernel.run()
     print(testKernel.getInfoString())
