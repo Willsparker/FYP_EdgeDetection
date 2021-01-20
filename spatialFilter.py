@@ -30,32 +30,29 @@ class spatialFilter:
         # When multithreading, could use pool.starmap
         # See: https://stackoverflow.com/questions/5442910/how-to-use-multiprocessing-pool-map-with-multiple-arguments
         # Saves time so I don't have to find these variables 3 times.
-        oriImgX, oriImgY = self.inputImage.size
+        oriImgX, oriImgY = inputArray.shape
         oriImg = inputArray
         maskSize=int(math.sqrt(len(self.mask)))
         mask = self.matrixCo * np.array(self.mask).reshape(maskSize,maskSize)
-    
+
         offset = int((maskSize-1)/2)
         outImg = np.zeros((oriImgX, oriImgY),dtype=float)
 
-        # Possibly a better way of doing this?!
-        # https://www.cs.utexas.edu/~theshark/courses/cs324e/lectures/cs324e-6.pdf
         for rowIndex in range(oriImgX-1):
             for columnIndex in range(oriImgY-1):
-                x = [item for item in (list(range(rowIndex-offset,rowIndex)) + list(range(rowIndex,rowIndex+offset+1))) if item >=0 if item < (oriImgX) ]
-                y = [item for item in (list(range(columnIndex-offset,columnIndex)) + list(range(columnIndex,columnIndex+offset+1))) if item >=0 if item < (oriImgY) ]
-                tmpArray = np.zeros((maskSize,maskSize))
-                newArray = oriImg[np.ix_(y,x)]
-                x_offset, y_offset = 0,0
+                sum = 0
+                for maskRowIndex in range(maskSize):
+                    for maskColIndex in range(maskSize):
+                        try:
+                            imgPosX = rowIndex - offset + maskRowIndex
+                            imgPosY = columnIndex - offset + maskColIndex
+                            sum  += oriImg[imgPosX][imgPosY] * mask[maskRowIndex][maskColIndex]
+                        except IndexError:
+                            # IF this is goes beyond the bounds of the image, I'd just add 0 to the sum anyway,
+                            # So lets just pass
+                            pass
+                outImg[rowIndex][columnIndex] = sum
 
-                if 0 in x:
-                    x_offset = maskSize - newArray.shape[0]
-                if 0 in y:
-                    y_offset = maskSize - newArray.shape[1]
-
-                tmpArray[x_offset:newArray.shape[0]+x_offset,y_offset:newArray.shape[1]+y_offset] = newArray
-                outImg[rowIndex][columnIndex] = int(sum(sum(tmpArray * mask)))
-        
         # Returning outImg as a float, as not to overflow.
         # Overflowed values are sorted later 
         return outImg
@@ -74,11 +71,10 @@ class spatialFilter:
             else:
                 pro_rchannel, pro_gchannel, pro_bchannel = p.map(pm.cutOffImageValues, [pro_rchannel,pro_gchannel,pro_bchannel])
             
-            returnImage = Image.merge("RGBA", (Image.fromarray(pro_rchannel.transpose()), Image.fromarray(pro_gchannel.transpose()), Image.fromarray(pro_bchannel.transpose()), Image.fromarray(alpha_channel)))
+            returnImage = Image.merge("RGBA", (Image.fromarray(pro_rchannel), Image.fromarray(pro_gchannel), Image.fromarray(pro_bchannel), Image.fromarray(alpha_channel)))
         else:
             grey, a = self.inputImage.convert('LA').split()
-            
-            grey_channel = self.processChannel(np.array(grey)).transpose()
+            grey_channel = self.processChannel(np.array(grey))
             
             if self.pixelGradCheck:
                 # The need for `copy` here messed me up
@@ -97,11 +93,8 @@ class spatialFilter:
         if self.alphaCheck:
             returnImage = pm.rmBlackSpace(returnImage,self.greyCheck)
 
-        
-
         return returnImage
 
-    # Debug code
     def getInfoString(self):
         return self.infoString
 

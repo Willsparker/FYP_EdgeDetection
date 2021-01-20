@@ -268,6 +268,7 @@ class Root(FloatLayout):
         #    self.image_input.save("./files/tmp.png")
         #except:
         #    pass
+        print(image.size)
         self.image_input = image
         data = BytesIO()
         image.save(data, format='png')
@@ -354,10 +355,6 @@ class Root(FloatLayout):
         self.oldSavedGrad = self.savedResultGrad
         self.savedResultGrad = ceObject.getImageArray()
         del ceObject
-
-
-        
-
 
 
 ### TODO:
