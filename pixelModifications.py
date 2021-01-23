@@ -2,6 +2,7 @@
 
 # PIL may not be needed
 from PIL import Image
+from cv2 import cv2
 import numpy as np
 
 # Takes in the Image, and check referring to if the image is greyscale or not
@@ -51,3 +52,21 @@ def blend(im1,im2,alpha,greyCheck):
         im2 = im2.resize(im1.size)
 
     return Image.blend(im1,im2,alpha)
+
+def applyCircles(img):
+    # PIL Image to OpenCV Image
+    pilImg = img.convert('RGB')
+    ocvImg = np.array(pilImg)
+    img = ocvImg[:, :, ::-1].copy()
+    gsImg = cv2.cvtColor(ocvImg[:, :, ::-1].copy(), cv2.COLOR_BGR2GRAY)
+    # Find cirlces
+    circles = cv2.HoughCircles(gsImg, cv2.HOUGH_GRADIENT, 1, 20, param1 = 200, param2 = 20, minRadius = 0)#
+    if circles is not None:
+        draw_circle(circles,ocvImg)
+        img = ocvImg
+    # openCV to PIL
+    return Image.fromarray(img)#cv2.cvtColor(img, cv2.COLOR_GRAY2RGB))
+
+def draw_circle(circle,img):
+    inner_circle = np.uint16(np.around(circles[0][0])).tolist()
+    cv2.circle(img, (inner_circle[0], inner_circle[1]), inner_circle[2], (0, 255, 0), 1)

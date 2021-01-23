@@ -14,6 +14,7 @@
 #  - Slider = sldr
 #  - Spinner = spnr
 #  - CheckBox = cb
+#  - ProgressBar = prgs
 
 <Root>:
     # Background of whole app
@@ -56,6 +57,12 @@
                     "-ve Laplacian" , "-ve LoG" , "+ve Laplacian", "+ve LoG"]
                 font_size: 20
                 on_text: root.on_spinner_change(self.text)
+            Button:
+                size_hint_x: 2
+                text: 'Iris Detection'
+                font_size: 20
+                on_release: root.irisDetector()
+
 
         # Image Viewer + Options Menu
         FloatLayout:

@@ -1,6 +1,7 @@
 from PIL import Image
 from multiprocessing import Pool
 import numpy as np
+# TODO: Only import the required function
 import math
 
 import pixelModifications as pm
@@ -38,10 +39,12 @@ class spatialFilter:
 
         offset = int((maskSize-1)/2)
         outImg = np.zeros((oriImgX, oriImgY),dtype=float)
-
+        self.loopPos = 0
         for rowIndex in range(oriImgX-1):
             for columnIndex in range(oriImgY-1):
                 sum = 0
+                self.loopPos = oriImgX * (rowIndex+1) + (columnIndex+1)
+                # This implementation is slower for larger masks - I may make a check so if maskSize is over a certain amount
                 for maskRowIndex in range(maskSize):
                     for maskColIndex in range(maskSize):
                         try:
@@ -102,11 +105,14 @@ class spatialFilter:
     def getPixelGradients(self):
         return self.pixelGradients
 
+    def getLoopPosition(self):
+        return self.loopPos
+
 
 
 # Test code
 if __name__ == '__main__':
     im = Image.open("./images/NOT_ON_GITHUB/No fake lens.bmp")
     testKernel = spatialFilter(im,[1,0,-1,2,0,-2,1,0,-1], 0.5, True,True, False, True)
-    #test = testKernel.run()
+    test = testKernel.run()
     print(testKernel.getInfoString())

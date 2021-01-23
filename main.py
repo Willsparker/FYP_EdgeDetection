@@ -25,6 +25,7 @@ import combineGradients as cg
 import quantizeIntensities as qi
 import colourize as c
 import cannyEdgeDetection as ce
+import irisDetection as id
 
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
@@ -52,7 +53,7 @@ class Root(FloatLayout):
         super(Root,self).__init__(**kwargs)
         self.initialiseGrid(3)
         self.updateGradientInfo()
-    
+
     def createPopup(self,content):
         popUp = Popup(title='Error', 
             content=Label(text=content,font_size=30),
@@ -146,7 +147,7 @@ class Root(FloatLayout):
     def applyTransform(self):
         # TODO: Put try / except here for in case the inputs aren't numbers
         inputMatrix = [int(i.text) for i in self.ids.grdUsrMatrix.children]
-        
+
         try:
             matrixCoefficient = self.getFraction(self.ids.txtMatrixCoeff.text)
         except ValueError:
@@ -175,7 +176,7 @@ class Root(FloatLayout):
         
         self.image_input.save("./files/tmp.png")
         self.setDisplayImage(processIM)
-    
+
     def resultantGradient(self):
         try:
             cgObject = cg.mergeGradients(self.savedGrad1,self.savedGrad2)
@@ -297,7 +298,6 @@ class Root(FloatLayout):
         except AttributeError:
             self.createPopup("Please load in a base image")
             return
-
         qiObject = qi.quanitizeIntensities(self.image_input,int(self.ids.sldrLowerPixThresh.value),int(self.ids.sldrUpperPixThresh.value))
         qiObject.run()
         self.image_input.save("./files/tmp.png")
@@ -318,7 +318,7 @@ class Root(FloatLayout):
         else:
             infoString += "Empty"
 
-        infoString += "\n\nResult Gradiet : "
+        infoString += "\n\nResult Gradient : "
 
         if not self.savedResultGrad is None:
             infoString += "[color=fc03db]Saved[/color]"
@@ -350,13 +350,19 @@ class Root(FloatLayout):
         self.savedResultGrad = ceObject.getImageArray()
         del ceObject
 
+    def irisDetector(self):
+        #self.setDisplayImage(pm.applyCircles(self.image_input))
+        idObject = id.irisDetector(self.image_input,self.ids.cbGrey.active)
+        if idObject.run():
+            self.setDisplayImage(idObject.getImage())
+        else:
+            self.createPopup("No Iris Found")
 
 ### TODO:
-# * Shape detection ... :grimace
-
+# * Implement Iris Detection
+# * Progress_Bar    ---> Probably not gonna happen, given my code structure
 # * Make the Spinner dynamically fill in the __init__ function
-# * We need to despararely separate the functionality with the Kivy stuff. Even if we have functions that just call
-# from a different class / python file.
+# * Tidy up Var names
 # * Go round and fix all the other 'TODO's. Lots of small things to clean up.
 
 class SpatialApp(App):
