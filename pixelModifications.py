@@ -60,13 +60,26 @@ def applyCircles(img):
     img = ocvImg[:, :, ::-1].copy()
     gsImg = cv2.cvtColor(ocvImg[:, :, ::-1].copy(), cv2.COLOR_BGR2GRAY)
     # Find cirlces
-    circles = cv2.HoughCircles(gsImg, cv2.HOUGH_GRADIENT, 1, 20, param1 = 200, param2 = 20, minRadius = 0)#
+    circles = cv2.HoughCircles(gsImg, cv2.HOUGH_GRADIENT, 1, 20, param1 = 200, param2 = 20, minRadius = 0)
     if circles is not None:
         draw_circle(circles,ocvImg)
         img = ocvImg
     # openCV to PIL
     return Image.fromarray(img)#cv2.cvtColor(img, cv2.COLOR_GRAY2RGB))
 
-def draw_circle(circle,img):
-    inner_circle = np.uint16(np.around(circles[0][0])).tolist()
-    cv2.circle(img, (inner_circle[0], inner_circle[1]), inner_circle[2], (0, 255, 0), 1)
+
+def FFT(img):
+    # See: https://stackoverflow.com/questions/38476359/fft-on-image-with-python/38507628
+
+    #pilImg = img.convert('L')
+    #fft = np.fft.fft2(pilImg)
+    #fft = np.fft.fftshift(fft)
+    #fft = np.abs(fft)
+    #fft *= 255.0 / fft.max()
+    #rtn_Img = Image.fromarray(np.absolute(fft))
+    cvimg = np.array(img.convert("L"))
+    f = np.fft.fft2(cvimg)
+    fshift = np.fft.fftshift(f)
+    magnitude_spectrum = 20*np.log(np.abs(fshift))
+    new=Image.fromarray(magnitude_spectrum).convert('L')
+    return new

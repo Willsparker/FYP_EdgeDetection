@@ -351,12 +351,17 @@ class Root(FloatLayout):
         del ceObject
 
     def irisDetector(self):
-        #self.setDisplayImage(pm.applyCircles(self.image_input))
         idObject = id.irisDetector(self.image_input,self.ids.cbGrey.active)
+        self.image_input.save("./files/tmp.png")
         if idObject.run():
             self.setDisplayImage(idObject.getImage())
         else:
             self.createPopup("No Iris Found")
+
+    def fourierTransform(self):
+        self.image_input.save("./files/tmp.png")
+        self.setDisplayImage(pm.FFT(self.image_input))
+
 
 ### TODO:
 # * Implement Iris Detection
