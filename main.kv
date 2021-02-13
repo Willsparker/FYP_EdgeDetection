@@ -278,6 +278,19 @@
                     background_color: (1, 1, 1, 0.5)
                     on_release: root.quantizeImageIntensities()
 
+                TextInput:
+                    id: txtDoubleThreshUpper
+                    size_hint: (0.25,0.05)
+                    pos_hint: {'x': 0.70, 'y': 0.15}
+                    hint_text: "Canny Upper Threshold"
+
+                TextInput:
+                    id: txtDoubleThreshLower
+                    size_hint: (0.25,0.05)
+                    pos_hint: {'x': 0.70, 'y': 0.08}
+                    hint_text: "Canny Lower Threshold"
+                    
+
 <LoadDialog>:
     BoxLayout:
         size: root.size

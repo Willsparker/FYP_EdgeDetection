@@ -343,7 +343,10 @@ class Root(FloatLayout):
 
     def cannyDetection(self):
         ceObject = ce.cannyEdgeDetection(self.savedResultGrad,self.savedTheta)
-        ceObject.run(int(self.ids.sldrLowerPixThresh.value),int(self.ids.sldrUpperPixThresh.value))
+        try:
+            ceObject.run(float(self.ids.txtDoubleThreshLower.text),float(self.ids.txtDoubleThreshUpper.text))
+        except ValueError:
+            ceObject.run()
         self.image_input.save("./files/tmp.png")
         self.setDisplayImage(ceObject.getImage())
         self.oldSavedGrad = self.savedResultGrad
@@ -359,13 +362,14 @@ class Root(FloatLayout):
             self.createPopup("No Iris Found")
 
     def fourierTransform(self):
-        self.image_input.save("./files/tmp.png")
+        try:
+            self.image_input.save("./files/tmp.png")
+        except:
+            self.createPopup("Please load an image in first")
+            return
         self.setDisplayImage(pm.FFT(self.image_input))
-
-
+        
 ### TODO:
-# * Implement Iris Detection
-# * Progress_Bar    ---> Probably not gonna happen, given my code structure
 # * Make the Spinner dynamically fill in the __init__ function
 # * Tidy up Var names
 # * Go round and fix all the other 'TODO's. Lots of small things to clean up.

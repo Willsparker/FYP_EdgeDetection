@@ -70,13 +70,6 @@ def applyCircles(img):
 
 def FFT(img):
     # See: https://stackoverflow.com/questions/38476359/fft-on-image-with-python/38507628
-
-    #pilImg = img.convert('L')
-    #fft = np.fft.fft2(pilImg)
-    #fft = np.fft.fftshift(fft)
-    #fft = np.abs(fft)
-    #fft *= 255.0 / fft.max()
-    #rtn_Img = Image.fromarray(np.absolute(fft))
     cvimg = np.array(img.convert("L"))
     f = np.fft.fft2(cvimg)
     fshift = np.fft.fftshift(f)

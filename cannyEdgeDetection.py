@@ -6,7 +6,7 @@ class cannyEdgeDetection:
         self.img = img
         self.theta = theta
 
-    def run(self,lBound,hBound):
+    def run(self,lBound=0.05 ,hBound=0.09):
         self.nonMaxSuppression()
         self.doubleThreshold(lBound,hBound)
         self.hysteresis()
@@ -50,14 +50,11 @@ class cannyEdgeDetection:
         
         self.img = Z
 
-    def doubleThreshold(self, lbound, hBound):
+    def doubleThreshold(self, lowerThresholdRatio=0.05 , highThresholdRatio=0.09):
         
         img = self.img
-        lowThresholdRatio = lbound / 255
-        highThresholdRatio = hBound / 255
-    
         highThreshold = img.max() * highThresholdRatio
-        lowThreshold = highThreshold * lowThresholdRatio
+        lowThreshold = highThreshold * lowerThresholdRatio
 
         M, N = img.shape
         res = np.zeros((M,N), dtype=np.int32)
