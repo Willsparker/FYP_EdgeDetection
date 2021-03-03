@@ -3,14 +3,10 @@ import os
 from cv2 import cv2
 from math import hypot
 from PIL import Image
+import matplotlib.pyplot as plt
 
 class irisDetector:
-    def __init__(self, img, greyCheck):
-        # Convert PILImage to CVImage
-        #if greyCheck:
-        #    img = img.convert('L')
-        #    self.img = np.array(img)
-        #else:
+    def __init__(self, img):
         img = img.convert('RGB')
         img = np.array(img)
         self.img = img[:, :, ::-1].copy() 
@@ -63,7 +59,7 @@ class irisDetector:
     def canny_edge(self,img):
         region_of_interest = cv2.bitwise_not(img)
         mode_of_operation = cv2.THRESH_BINARY_INV
-        retval, thresholded_image = cv2.threshold(region_of_interest, 50, 255, mode_of_operation)
+        _, thresholded_image = cv2.threshold(region_of_interest, 50, 255, mode_of_operation)
         return cv2.Canny(thresholded_image, 200, 100)
 
     def hough_circle(self,img):
@@ -72,6 +68,7 @@ class irisDetector:
 
     def draw_circle(self,circles,img):
         inner_circle = np.uint16(np.around(circles[0][0])).tolist()
+        self.iris_circle = inner_circle
         cv2.circle(img, (inner_circle[0], inner_circle[1]), inner_circle[2], (0, 255, 0), 1)
         return inner_circle
 
@@ -84,3 +81,6 @@ class irisDetector:
 
     def getImage(self):
         return Image.fromarray(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB))
+
+    def getIrisCircle(self):
+        return self.iris_circle

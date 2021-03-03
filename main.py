@@ -26,6 +26,7 @@ import quantizeIntensities as qi
 import colourize as c
 import cannyEdgeDetection as ce
 import irisDetection as id
+import irisUnwrap as iw
 
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
@@ -354,10 +355,11 @@ class Root(FloatLayout):
         del ceObject
 
     def irisDetector(self):
-        idObject = id.irisDetector(self.image_input,self.ids.cbGrey.active)
+        idObject = id.irisDetector(self.image_input)
         self.image_input.save("./files/tmp.png")
         if idObject.run():
             self.setDisplayImage(idObject.getImage())
+            self.iris_circle = idObject.getIrisCircle()
         else:
             self.createPopup("No Iris Found")
 
@@ -368,6 +370,14 @@ class Root(FloatLayout):
             self.createPopup("Please load an image in first")
             return
         self.setDisplayImage(pm.FFT(self.image_input))
+
+    def irisUnwrap(self):
+        try:
+            self.image_input.save("./files/tmp.png")
+        except:
+            self.createPopup("Please load an image in first")
+            return
+        self.setDisplayImage(iw.irisUnwrapping(self.image_input, self.iris_circle))
         
 ### TODO:
 # * Make the Spinner dynamically fill in the __init__ function
