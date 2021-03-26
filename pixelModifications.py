@@ -76,3 +76,12 @@ def FFT(img):
     magnitude_spectrum = 20*np.log(np.abs(fshift))
     new=Image.fromarray(magnitude_spectrum).convert('L')
     return new
+
+def gaborFilter(img):
+    cvimg = np.array(img.convert("L"))
+    g_kernel = cv2.getGaborKernel((11, 11), 8.0, np.pi/4, 10.0, 0.5, 0, ktype=cv2.CV_32F)
+
+    filtered_img = cv2.filter2D(cvimg, cv2.CV_8UC3, g_kernel)
+    #h, w = g_kernel.shape[:2]
+    #g_kernel = cv2.resize(filtered_img, (3*w, 3*h), interpolation=cv2.INTER_CUBIC)
+    return Image.fromarray(filtered_img).convert('L')

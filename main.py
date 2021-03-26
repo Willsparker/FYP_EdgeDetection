@@ -378,6 +378,14 @@ class Root(FloatLayout):
             self.createPopup("Please load an image in first")
             return
         self.setDisplayImage(iw.irisUnwrapping(self.image_input, self.iris_circle))
+
+    def gaborFilter(self):
+        try:
+            self.image_input.save("./files/tmp.png")
+        except:
+            self.createPopup("Please load an image in first")
+            return
+        self.setDisplayImage(pm.gaborFilter(self.image_input))
         
 ### TODO:
 # * Make the Spinner dynamically fill in the __init__ function

@@ -58,18 +58,26 @@
                 font_size: 20
                 on_text: root.on_spinner_change(self.text)
             Button:
-                size_hint_x: 2
+                size_hint_x: 5
                 text: 'Iris Detection'
                 font_size: 20
                 on_release: root.irisDetector()
             Button:
+                size_hint_x: 1.5
                 text: 'FFT'
                 font_size: 20
                 on_release: root.fourierTransform()
             Button:
+                size_hint_x: 5
                 text: 'Iris Unwrapping'
                 font_size: 20
                 on_release: root.irisUnwrap()
+
+            Button:
+                size_hint_x: 5
+                text: 'Gabor Filter'
+                font_size: 20
+                on_release: root.gaborFilter()
 
 
         # Image Viewer + Options Menu

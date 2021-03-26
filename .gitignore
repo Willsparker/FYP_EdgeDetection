@@ -136,3 +136,6 @@ images/NOT_ON_GITHUB/
 
 # tmp_image. Unnecessary to store as this is generated in the app
 files/tmp.png
+
+./Selected_Eyes/*
+
