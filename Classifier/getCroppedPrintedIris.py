@@ -4,9 +4,12 @@ import re
 from math import hypot
 import numpy as np
 
-iris_pos_file = '/home/will/Documents/FYP/Selected_Eyes/PrintedImages/IrisPositions.txt'
-image_dir = '/home/will/Documents/FYP/Selected_Eyes/PrintedImages/'
-output_dir = '/home/will/Documents/FYP/Selected_Eyes/PrintedIris/'
+
+CurPath = os.path.dirname(__file__)
+# Path to output txt file:
+iris_pos_file = CurPath + '/PrintedImages/IrisPositions.txt'
+image_dir = CurPath + '/PrintedImages/'
+output_dir = CurPath + '/PrintedIris/'
 
 # Get all printed images, if they're .jpg
 def getPrintedImageNames():

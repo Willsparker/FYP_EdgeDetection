@@ -1,8 +1,9 @@
 import cv2, numpy as np, os, math
 
+CurPath = os.path.dirname(__file__)
 # Path to output txt file:
-output_path = '/home/will/Documents/FYP/Selected_Eyes/PrintedImages/IrisPositions.txt'
-image_dir = '/home/will/Documents/FYP/Selected_Eyes/PrintedImages/'
+output_path = CurPath + '/PrintedImages/IrisPositions.txt'
+image_dir = CurPath + '/PrintedImages/'
 
 
 # Mouse callback function
@@ -51,7 +52,3 @@ for index in range(0,len(click_list),2):
     WriteTxtFile = open(output_path, "a")
     WriteTxtFile.write(text)
     WriteTxtFile.close()
-
-#def drawCircleOnImg(img,centre,radius):
-#    return cv2.circle(img,centre,radius,(255,0,0),1)
-

@@ -2,8 +2,9 @@ import cv2
 import os
 import re
 
-iris_pos_file = '/home/will/Documents/FYP/Selected_Eyes/PrintedImages/IrisPositions.txt'
-image_dir = '/home/will/Documents/FYP/Selected_Eyes/PrintedImages/'
+CurPath = os.path.dirname(__file__)
+iris_pos_file = CurPath + '/PrintedImages/IrisPositions.txt'
+image_dir = CurPath + '/PrintedImages/'
 
 # Get all printed images, if they're .jpg
 def getPrintedImageNames():

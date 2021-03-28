@@ -31,6 +31,7 @@ if not os.path.isfile(DSPath + 'data.csv'):
     with open(DSPath + 'data.csv', 'a') as file:
         fieldnames = ['Image_Index', 'Fake']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
         for index in range(len(image_names)):
             # If the iris is printed
             if image_names[index].startswith("I"):
@@ -66,7 +67,7 @@ for name in image_names:
     x = match[0].split(" ")[1].split(",")[0]
     y = match[0].split(" ")[1].split(",")[1]
     radius = match[0].split(" ")[2]
-    # Useful for progress
+    # Useful for progress monitoring
     print(image_index)
     unwrappedIris = iU.irisUnwrapping(img,[int(x),int(y),int(float(radius))])
 
