@@ -25,10 +25,7 @@ def irisUnwrapping(img, iris_circle):
             polar[r][int(theta * nsamples / 2.0 / np.pi)] = image[y][x][0]
 
 
-    return Image.fromarray(polar).convert('RGB')#cv2.cvtColor(polar, cv2.COLOR_BGR2RGB))
-    #plt.figure(figsize=(10, 5))
-    #plt.imshow(polar, cmap='gray')
-    #plt.show()
+    return Image.fromarray(polar).convert('RGB')
 
 
     

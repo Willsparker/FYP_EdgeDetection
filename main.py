@@ -253,6 +253,34 @@ class Root(FloatLayout):
         else:
             self.ids.cbGreyVals.active = False
 
+    def on_img_spinner_change(self, text):
+        if text == "FFT":
+            try:
+                self.image_input.save("./files/tmp.png")
+            except:
+                self.createPopup("Please load an image in first")
+                return
+            self.setDisplayImage(pm.FFT(self.image_input))
+        elif text == "Gabor Filter":
+            try:
+                self.image_input.save("./files/tmp.png")
+            except:
+                self.createPopup("Please load an image in first")
+                return
+            self.setDisplayImage(pm.gaborFilter(self.image_input))
+        elif text == "Iris Detection":
+            try:
+                self.image_input.save("./files/tmp.png")
+            except:
+                self.createPopup("Please load an image in first")
+                return
+            idObject = id.irisDetector(self.image_input)
+            if idObject.run():
+                self.setDisplayImage(idObject.getImage())
+                self.iris_circle = idObject.getIrisCircle()
+            else:
+                self.createPopup("No Iris Found")
+
     def blendImages(self, blend_image):
         if not self.image_input:
             self.createPopup("Nothing to blend the image with!")
@@ -354,23 +382,6 @@ class Root(FloatLayout):
         self.savedResultGrad = ceObject.getImageArray()
         del ceObject
 
-    def irisDetector(self):
-        idObject = id.irisDetector(self.image_input)
-        self.image_input.save("./files/tmp.png")
-        if idObject.run():
-            self.setDisplayImage(idObject.getImage())
-            self.iris_circle = idObject.getIrisCircle()
-        else:
-            self.createPopup("No Iris Found")
-
-    def fourierTransform(self):
-        try:
-            self.image_input.save("./files/tmp.png")
-        except:
-            self.createPopup("Please load an image in first")
-            return
-        self.setDisplayImage(pm.FFT(self.image_input))
-
     def irisUnwrap(self):
         try:
             self.image_input.save("./files/tmp.png")
@@ -379,13 +390,10 @@ class Root(FloatLayout):
             return
         self.setDisplayImage(iw.irisUnwrapping(self.image_input, self.iris_circle))
 
-    def gaborFilter(self):
-        try:
-            self.image_input.save("./files/tmp.png")
-        except:
-            self.createPopup("Please load an image in first")
-            return
-        self.setDisplayImage(pm.gaborFilter(self.image_input))
+    def openIrisDetector(self):
+        from subprocess import Popen, PIPE
+        process = Popen(['python3', 'IrisDetector.py'], stdout=PIPE, stderr=PIPE)
+
         
 ### TODO:
 # * Make the Spinner dynamically fill in the __init__ function

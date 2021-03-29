@@ -29,24 +29,27 @@
         orientation: 'vertical'
         # Top Button Panel
         BoxLayout:
-            size_hint_x: 0.35
+            size_hint_x: 1
             size_hint_y: None
             height: 30
             Button:
+                size_hint_x: 2.5
                 text: 'Load'
                 font_size: 20
                 on_release: root.show_load(1)
             Button:
+                size_hint_x: 2.5
                 text: 'Save'
                 font_size: 20
                 on_release: root.show_save()
             Button:
+                size_hint_x: 2.5
                 text: 'Undo'
                 font_size: 20
                 on_release: root.undoTransform()
             Spinner:
                 id: spnrPreset
-                size_hint_x: 3
+                size_hint_x: 7
                 text: 'Preset Filters'
                 values: 
                     [ "Identity",
@@ -57,27 +60,28 @@
                     "-ve Laplacian" , "-ve LoG" , "+ve Laplacian", "+ve LoG"]
                 font_size: 20
                 on_text: root.on_spinner_change(self.text)
-            Button:
-                size_hint_x: 5
-                text: 'Iris Detection'
+            Spinner:
+                id: spnrImgTransform
+                size_hint_x: 8
+                text: 'Other Transformations'
+                values:
+                    [  "FFT",
+                    "Gabor Filter",
+                    "Iris Detection"]
                 font_size: 20
-                on_release: root.irisDetector()
+                on_text: root.on_img_spinner_change(self.text)
             Button:
-                size_hint_x: 1.5
-                text: 'FFT'
+                size_hint_x: 8
+                text: 'Fake Iris Detector'
                 font_size: 20
-                on_release: root.fourierTransform()
-            Button:
-                size_hint_x: 5
-                text: 'Iris Unwrapping'
-                font_size: 20
-                on_release: root.irisUnwrap()
+                on_release: root.openIrisDetector()
 
-            Button:
-                size_hint_x: 5
-                text: 'Gabor Filter'
-                font_size: 20
-                on_release: root.gaborFilter()
+            #Button:
+            #    size_hint_x: 8.5
+            #    text: 'Iris Unwrapping'
+            #    font_size: 20
+            #    on_release: root.irisUnwrap()
+
 
 
         # Image Viewer + Options Menu

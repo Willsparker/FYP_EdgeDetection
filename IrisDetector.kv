@@ -1,0 +1,71 @@
+#:kivy 1.11.0
+<Root>:
+    # Background of whole app
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    #Overall Window
+    BoxLayout:
+        # Top Button Panel
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_x: 0.3
+            size_hint_y: None
+            height: 30
+            Button:
+                size_hint_x: 0.2
+                text: 'Load'
+                font_size: 20
+                on_release: root.show_load()
+        TouchPoint:
+            id: imgInput
+            load_image:imgInput
+            source: ''
+            allow_stretch: True
+        FloatLayout:
+            orientation: 'vertical'
+            ScrollView:
+                size_hint_x: 0.80
+                do_scroll_y: True
+                Label:
+                    id: lblInfo
+                    text: root.infoText
+                    size_hint_x: 1.0
+                    size_hint_y: None
+                    text_size: self.width, None
+                    font_size: 20
+                    height: self.texture_size[1]
+            Button:
+                size_hint: (0.1,0.1)
+                pos_hint: {'x': 0.85, 'y': 0.25}
+                font_size: 20
+                text: 'Start'
+                on_release: root.start()
+            Button:
+                size_hint: (0.1,0.1)
+                pos_hint: {'x': 0.85, 'y': 0.1}
+                font_size: 20
+                text: 'Exit'
+                on_release: app.stop()
+
+<LoadDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            path: './images'                   # Starts with current path
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Load"
+                on_release: root.load(filechooser.selection)
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
