@@ -4,7 +4,7 @@ import numpy as np
 # TODO: Only import the required function
 import math
 
-import pixelModifications as pm
+from SpatialApplicator import pixelModifications as pm
 
 class spatialFilter:
     pixelGradients = None

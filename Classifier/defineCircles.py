@@ -11,11 +11,7 @@ global click_list
 global img_list
 positions, click_list, img_list = [], [], []
 
-def callback(event, x, y, flags, param):
-    if event == 1: 
-        print(img_name)
-        img_list.append(img_name)
-        click_list.append((x,y))
+
 
 # Get all printed images, if they're .jpg
 def getPrintedImageNames():

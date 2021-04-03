@@ -20,12 +20,13 @@
                 text: 'Load'
                 font_size: 20
                 on_release: root.show_load()
-        TouchPoint:
+        Image:
+            size_hint_y: 0.7
             id: imgInput
-            load_image:imgInput
             source: ''
             allow_stretch: True
         FloatLayout:
+            size_hint_y: 0.3
             orientation: 'vertical'
             ScrollView:
                 size_hint_x: 0.80
@@ -38,14 +39,30 @@
                     text_size: self.width, None
                     font_size: 20
                     height: self.texture_size[1]
-            Button:
-                size_hint: (0.1,0.1)
-                pos_hint: {'x': 0.85, 'y': 0.25}
+            CheckBox:
+                id: cbEdgeFeatures
+                active: False
+                pos_hint: {'x': 0.81, 'y': 0.60}
+                size_hint: (0.1,0.15)
+            Label:
                 font_size: 20
-                text: 'Start'
-                on_release: root.start()
+                text: "Use edge info?"
+                pos_hint: {'x': 0.87, 'y': 0.60}
+                size_hint: (0.1,0.15)
             Button:
-                size_hint: (0.1,0.1)
+                size_hint: (0.1,0.15)
+                pos_hint: {'x': 0.85, 'y': 0.30}
+                font_size: 20
+                text: 'Start Classifier'
+                on_release: root.startClassification()
+            Button:
+                size_hint: (0.1,0.15)
+                pos_hint: {'x': 0.85, 'y': 0.80}
+                font_size: 20
+                text: 'Define Circle'
+                on_release: root.startCircle()
+            Button:
+                size_hint: (0.1,0.15)
                 pos_hint: {'x': 0.85, 'y': 0.1}
                 font_size: 20
                 text: 'Exit'

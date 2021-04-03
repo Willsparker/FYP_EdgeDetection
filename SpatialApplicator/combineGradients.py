@@ -4,7 +4,7 @@ import colorsys
 from math import sqrt, atan
 from PIL import Image
 
-import pixelModifications as pm
+from SpatialApplicator import pixelModifications as pm
 
 class mergeGradients:
     outImg = None

@@ -19,14 +19,14 @@ from math import sqrt
 import os
 
 # Other .py files
-import spatialFilter as sf
-import pixelModifications as pm
-import combineGradients as cg
-import quantizeIntensities as qi
-import colourize as c
-import cannyEdgeDetection as ce
-import irisDetection as id
-import irisUnwrap as iw
+from SpatialApplicator import spatialFilter as sf
+from SpatialApplicator import pixelModifications as pm
+from SpatialApplicator import combineGradients as cg
+from SpatialApplicator import quantizeIntensities as qi
+from SpatialApplicator import colourize as c
+from SpatialApplicator import cannyEdgeDetection as ce
+from SpatialApplicator import irisDetection as id
+from SpatialApplicator import irisUnwrap as iw
 
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
@@ -176,6 +176,7 @@ class Root(FloatLayout):
             self.updateGradientInfo()
         
         self.image_input.save("./files/tmp.png")
+        
         self.setDisplayImage(processIM)
 
     def resultantGradient(self):

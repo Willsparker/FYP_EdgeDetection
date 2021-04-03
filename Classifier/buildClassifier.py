@@ -12,7 +12,7 @@ from sklearn.decomposition import PCA
 from sklearn.svm import SVC
 
 # This defines if we're building the classifer with Edge Features, or not.
-EDGE_FEATURES = False
+EDGE_FEATURES = True
 # Predicts the accuracy of the model
 PREDICTION = True
 # Number of Principal components to reduce the feature space to
@@ -58,7 +58,7 @@ def applyHoG(image):
     return hog_image
 
 # Responsible for finding all features of a given image and returning as a 1D array.
-def getFeatures(image):
+def getFeatures(image, edge_check=EDGE_FEATURES):
     # Every Descriptor returns a 130,360 array, therefore flatten each to (130*360,)
     f_FFT = applyFFT(image).flatten()
     f_Gabor = applyGabor(image).flatten()
@@ -66,7 +66,7 @@ def getFeatures(image):
 
     # Get as one big vector
     image_features = np.hstack((f_FFT,f_Gabor,f_HoG))
-    if EDGE_FEATURES: 
+    if edge_check: 
         # Add edge detection to vector, if we want it on there
         f_Edge = applyEdgeDetection(image).flatten()
         image_features = np.hstack((image_features,f_Edge))
@@ -79,67 +79,83 @@ def getFeatures(image):
 # Saves the SVM model for later use
 def saveSVM(svm):
     # save the model to disk
-    filename = CurPath + '/SVM_model.sav'
+    if EDGE_FEATURES:
+        filename = CurPath + '/SVM_model_EDGES.sav'
+    else:
+        filename = CurPath + '/SVM_model.sav'
     pickle.dump(svm, open(filename, 'wb'))
 
+# Not used due to the way we have to predict stuff
+def applyPCA(feature_matrix):
+    if feature_matrix.ndim == 1:
+        feature_matrix = feature_matrix.reshape(1,-1)
+        print(feature_matrix.shape)
+    ss = StandardScaler()
+    standard_fm = ss.fit_transform(feature_matrix)
+    print(PCA_NO)
+    pca = PCA(1)
+    standard_fm = pca.fit_transform(standard_fm)
+    return standard_fm
 
-# load in the data.csv and use it as a label process
-labels = pd.read_csv(DSPath + "data.csv", index_col=0)
+def run():
+    # load in the data.csv and use it as a label process
+    labels = pd.read_csv(DSPath + "data.csv", index_col=0)
 
-feature_list = []
-# For all images we've got
-for id in labels.index:
-    image = getImage(id)
-    image_features = getFeatures(image)
-    feature_list.append(image_features)
+    feature_list = []
+    # For all images we've got
+    for id in labels.index:
+        image = getImage(id)
+        image_features = getFeatures(image)
+        feature_list.append(image_features)
 
-feature_matrix = np.array(feature_list)
-print("\n[STATUS] feature_matrix shape: ", feature_matrix.shape)
-# Standardise the data, and apply PCA, to reduce it
-ss = StandardScaler()
-standard_fm = ss.fit_transform(feature_matrix)
-pca = PCA(PCA_NO)
-standard_fm = pca.fit_transform(standard_fm)
-print("\n[STATUS] FM shape, post PCA: ", standard_fm.shape)
+    feature_matrix = np.array(feature_list)
+    print("\n[STATUS] feature_matrix shape: ", feature_matrix.shape)
+    # Standardise the data, and apply PCA, to reduce it
+    
+    standard_fm = feature_matrix#applyPCA(feature_matrix)
+    print("\n[STATUS] FM shape, post PCA: ", standard_fm.shape)
 
-# Getting 2 dataframes:
-#  - 1 with the standardised Feature matrix for each image
-#  - 1 with the corresponding labels (i.e. Fake or Not Fake)
-X = pd.DataFrame(standard_fm)
-y = pd.Series(labels.Fake.values)
+    # Getting 2 dataframes:
+    #  - 1 with the standardised Feature matrix for each image
+    #  - 1 with the corresponding labels (i.e. Fake or Not Fake)
+    X = pd.DataFrame(standard_fm)
+    y = pd.Series(labels.Fake.values)
 
-# Split data into test / training
-X_train, X_test, y_train, y_test = train_test_split(X,
-                                                    y,
-                                                    test_size=(1.0-TRAINING_PERCENTAGE))
+    # Split data into test / training
+    X_train, X_test, y_train, y_test = train_test_split(X,
+                                                        y,
+                                                        test_size=(1.0-TRAINING_PERCENTAGE))
 
-print("\n[STATUS] Number of training samples: ", len(X_train))
-print("\n[STATUS] Example of training data:\n")
-print(X_train.head())
-# define support vector classifier
-svm = SVC(kernel='linear', probability=True, random_state=42)
+    print("\n[STATUS] Number of training samples: ", len(X_train))
+    print("\n[STATUS] Example of training data:\n")
+    print(X_train.head())
+    # define support vector classifier
+    svm = SVC(kernel='linear', probability=True, random_state=42)
 
-# fit model & save it
-svm.fit(X_train, y_train)
-print("\n[STATUS] Finished training model...")
-print("[STATUS] Saving to ", CurPath + '/SVM_model.sav')
-saveSVM(svm)
+    # fit model & save it
+    svm.fit(X_train, y_train)
+    print("\n[STATUS] Finished training model...")
+    print("[STATUS] Saving to ", CurPath + '/SVM_model.sav')
+    saveSVM(svm)
 
-# If we want to guage how good the model is:
-if PREDICTION:
-    # generate predictions
-    y_pred = svm.predict(X_test)
+    # If we want to guage how good the model is:
+    if PREDICTION:
+        # generate predictions
+        y_pred = svm.predict(X_test)
 
-    # calculate accuracy
-    accuracy = accuracy_score(y_test, y_pred)
-    print('\n[STATUS] Model accuracy is: ', accuracy)
+        # calculate accuracy
+        accuracy = accuracy_score(y_test, y_pred)
+        print('\n[STATUS] Model accuracy is: ', accuracy)
 
-    # If we can plot as a 2D graph, we should
-    if PCA_NO == 2:
-        support_vectors = svm.support_vectors_
-        plt.scatter(X_train.iloc[:,0], X_train.iloc[:,1])
-        plt.scatter(support_vectors[:,0], support_vectors[:,1], color='red')
-        plt.title('Linearly separable data')
-        plt.xlabel('X1')
-        plt.ylabel('X2')
-        plt.show()
+        # If we can plot as a 2D graph, we should
+        if PCA_NO == 2:
+            support_vectors = svm.support_vectors_
+            plt.scatter(X_train.iloc[:,0], X_train.iloc[:,1])
+            plt.scatter(support_vectors[:,0], support_vectors[:,1], color='red')
+            plt.title('Linearly separable data')
+            plt.xlabel('X1')
+            plt.ylabel('X2')
+            plt.show()
+
+if __name__ == '__main__':
+    run()
