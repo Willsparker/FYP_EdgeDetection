@@ -48,7 +48,8 @@ class Root(FloatLayout):
     def __init__(self, **kwargs):
         super(Root,self).__init__(**kwargs)
         self.infoText = "To start, load in an image and click start.\nClick 2 points in the image that\
- correspond to the middle of the pupil and the iris boundary"
+ correspond to the middle of the pupil and the iris boundary\n\nAlternatively, manually enter the centre,\
+ in the form 'x,y', and radius as an integer"
 
     def dismiss_popup(self):
         self._popup.dismiss()
@@ -118,8 +119,19 @@ class Root(FloatLayout):
 
         # Cache the last image.
         self.displayImage.save("./files/tmp.png")
-        # Find the circle
-        circle = gC.run()
+
+        if not self.ids.txtIrisCentre.text == "" and not self.ids.txtIrisRadius.text == "":
+            try:
+                circle = []
+                circle.append(int(self.ids.txtIrisCentre.text.split(",")[0]))
+                circle.append(int(self.ids.txtIrisCentre.text.split(",")[1]))
+                circle.append(int(self.ids.txtIrisRadius.text))
+            except:
+                circle = gC.run()
+        else:
+            # Find the circle
+            circle = gC.run()
+
         self.circle = circle
         self.classified = False
         # Information Printing

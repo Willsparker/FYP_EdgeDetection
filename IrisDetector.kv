@@ -29,7 +29,7 @@
             size_hint_y: 0.3
             orientation: 'vertical'
             ScrollView:
-                size_hint_x: 0.80
+                size_hint_x: 0.70
                 do_scroll_y: True
                 Label:
                     id: lblInfo
@@ -41,7 +41,7 @@
                     height: self.texture_size[1]
             CheckBox:
                 id: cbEdgeFeatures
-                active: False
+                active: True
                 pos_hint: {'x': 0.81, 'y': 0.60}
                 size_hint: (0.1,0.15)
             Label:
@@ -67,6 +67,20 @@
                 font_size: 20
                 text: 'Exit'
                 on_release: app.stop()
+            TextInput:
+                id: txtIrisCentre
+                size_hint: (0.1,0.15)
+                pos_hint: {'x': 0.70, 'y': 0.3}
+                font_size: 20
+                hint_text: "Iris Centre"
+                text: "947,506"
+            TextInput:
+                id: txtIrisRadius
+                size_hint: (0.1,0.15)
+                pos_hint: {'x': 0.70, 'y': 0.1}
+                font_size: 20
+                hint_text: "Iris Radius"
+                text: "275"
 
 <LoadDialog>:
     BoxLayout:
